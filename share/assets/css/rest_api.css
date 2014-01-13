@@ -1,0 +1,9 @@
+
+.navbar .navbar-inner {
+  background-color: #1ebd06;
+  background-image: none;
+}
+
+.navbar-inverse .brand {
+  color: #eee;
+}

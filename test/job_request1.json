@@ -1,0 +1,19 @@
+
+{
+  "name": "foo-2000",
+  "description": "Let's start small",
+  "priority": 0,
+  "oidl_script": "git:foo.oidl",
+  "ec_properties": [
+    {
+      "name" : "data-rate",
+      "value": 2000
+    }, {
+      "name": "sender",
+      "resource": { "type": "node" }
+    }, {
+      "name": "receiver",
+      "resource": { "type": "node" }
+    }
+  ]
+}

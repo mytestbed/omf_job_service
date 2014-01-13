@@ -2,8 +2,9 @@
 OMF Experiment Service
 ======================
 
-This directory contains the implementations of an Experiment Service
-which executes experiments on behalf of users.
+This directory contains the implementations of a Job Scheduling Service
+which will first allocate resources to a job (experiment) and then
+execute the job when the necessary resources become available.
 
 Installation
 ------------

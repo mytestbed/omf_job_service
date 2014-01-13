@@ -11,8 +11,9 @@ Installation
 
 At this stage the best course of action is to clone the repository
 
-    % git clone https://github.com/mytestbed/omf_exp_service.git
+    % git clone https://github.com/mytestbed/omf_job_service.git
     % cd omf_job_service
+    % sudo apt-install sqlite3-dev  # for Debian/Ubuntu systems
     % bundle install --path vendor
     
 Starting the Service

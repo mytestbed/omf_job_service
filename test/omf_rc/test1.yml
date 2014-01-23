@@ -1,0 +1,6 @@
+---
+:uid: test1
+:uri: amqp://localhost
+:environment: development
+#:environment: production
+:debug: false

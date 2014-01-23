@@ -1,0 +1,21 @@
+---
+:u: amqp://localhost
+:root_cert_dir: 
+:cert: 
+:key: 
+:log_file_dir: /tmp
+:log_config: 
+:version: false
+:d: false
+:x: false
+:help: false
+:uri: xmpp://localhost
+:debug: false
+:xmpp: false
+commands:
+  :_doc: {}
+  :exec: {}
+  :load: {}
+  :save: {}
+  :stat: {}
+  :tell: {}

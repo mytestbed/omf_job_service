@@ -1,0 +1,6 @@
+source "https://rubygems.org"
+
+gem 'omf_ec', "~> 6.0.8.pre"
+gem 'amqp'
+gem 'json-jwt'
+

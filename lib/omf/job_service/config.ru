@@ -99,12 +99,14 @@ map "/" do
     case req.path_info
     when '/'
       http_prefix = "http://#{env["HTTP_HOST"]}"
-      toc = {}
-      ['README', :users, :jobs].each do |s|
-        toc[s] = URI.parse("#{http_prefix}/#{s.to_s.downcase}?_format=html&_level=0")
-        toc[s] = "#{http_prefix}/#{s.to_s.downcase}"
+      toc = ['README', :jobs, :users].map do |s|
+        "<li><a href='#{http_prefix}/#{s.to_s.downcase}?_format=html&_level=0'>#{s}</a></li>"
       end
-      [200 ,{'Content-Type' => 'text/html'}, OMF::SFA::AM::Rest::RestHandler.convert_to_html(toc, env)]
+      page = {
+        service: 'Job Service',
+        content: "<ul>#{toc.join("\n")}</ul>"
+      }
+      [200 ,{'Content-Type' => 'text/html'}, OMF::SFA::AM::Rest::RestHandler.render_html(page)]
     when '/favicon.ico'
       [301, {'Location' => '/assets/image/favicon.ico', "Content-Type" => ""}, ['Next window!']]
     else

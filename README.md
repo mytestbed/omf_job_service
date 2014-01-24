@@ -1,6 +1,6 @@
 
-OMF Experiment Service
-======================
+OMF Job Service
+===============
 
 This directory contains the implementations of a Job Scheduling Service
 which will first allocate resources to a job (experiment) and then

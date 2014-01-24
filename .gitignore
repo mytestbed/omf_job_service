@@ -1,2 +1,7 @@
 Gemfile.lock
 .project
+.bundle
+vendor
+test/omf_rc/bin
+test/omf_rc/ruby_wrapper
+omf_ec/bin

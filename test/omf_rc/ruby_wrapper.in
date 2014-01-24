@@ -1,0 +1,14 @@
+#!/bin/bash
+
+export HOME=/Users/max
+RUBY_VERSION=ruby-1.9.3-p362@global
+
+source /Users/max/.bashrc
+source /Users/max/.bash_profile
+export PATH=$HOME/.rvm/gems/$RUBY_VERSION@global/bin:$PATH
+
+rvm use $RUBY_VERSION
+#echo `which bundle`
+
+echo ">>>> $*"
+bundle exec ruby $*

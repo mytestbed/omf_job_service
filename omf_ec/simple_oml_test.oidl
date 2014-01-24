@@ -1,0 +1,45 @@
+# Simple OEDL Experiment for OMF
+# Starts a generator on a resource and collects results in OML
+
+defProperty('res1', "test1", "ID of a node")
+
+
+defApplication('generator', 'generator') do |a|
+  a.binary_path = "./generator.rb"
+  a.description = "Signal generator reporting values into OML"
+  #a.defProperty('dest_addr', 'Address to ping', 'a', {:type => :string, :dynamic => false})
+
+  a.defMeasurement('sin') do |m|
+    m.defMetric('label', :string)
+    m.defMetric('angle', :int)
+    m.defMetric('value',:float)
+ end
+end
+
+defGroup('Generator', property.res1) do |node|
+  node.addApplication("generator") do |app|
+    app.measure('sin', sample: 1)
+  end
+end
+
+onEvent(:ALL_UP_AND_INSTALLED) do |event|
+  info "Starting a remote signal generator"
+  allGroups.startApplications
+  info "All my Applications are started now..."
+
+  after 30 do
+    allGroups.stopApplications
+    info "All my Applications are stopped now."
+    Experiment.done
+  end
+end
+
+
+defGraph 'Throughput' do |g|
+  g.ms('udp_in').select {[ oml_ts_client.as(:ts), pkt_length_sum.as(:rate) ]}
+  g.caption "Incoming traffic on receiver."
+  g.type 'line_chart3'
+  g.mapping :x_axis => :ts, :y_axis => :rate
+  g.xaxis :legend => 'time [s]'
+  g.yaxis :legend => 'size [B]', :ticks => {:format => 's'}
+end

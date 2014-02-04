@@ -1,6 +1,16 @@
 source "https://rubygems.org"
 
-gem 'omf_ec', "~> 6.0.8.pre"
+def override_with_local(opts)
+  local_dir = opts.delete(:path)
+  unless local_dir.start_with? '/'
+    local_dir = File.join(File.dirname(__FILE__), local_dir)
+  end
+  #puts "Checking for '#{local_dir}' - #{Dir.exist?(local_dir)}"
+  Dir.exist?(local_dir) ? {path: local_dir} : opts[:version]
+end
+
+gem 'omf_common', override_with_local(path: '../../omf6/omf_common', version: "~> 6.0.8.pre")
+gem 'omf_ec', override_with_local(path: '../../omf6/omf_ec', version: "~> 6.0.8.pre")
 gem 'amqp'
 gem 'json-jwt'
 

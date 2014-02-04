@@ -10,7 +10,7 @@ module OMF::JobService::Resource
     oproperty :creation, DataMapper::Property::Time
     oproperty :description, String
     oproperty :priority, Integer
-    oproperty :oidl_script, String
+    oproperty :oedl_script, String
     oproperty :ec_properties, Object, functional: false, set_filter: :filter_ec_property
 
 
@@ -23,7 +23,7 @@ module OMF::JobService::Resource
       self.status = :pending
 
       resources = self.ec_properties.select do |p|
-        puts "PPP>> #{p.inspect}"
+        #puts "PPP>> #{p.inspect}"
         p.resource? && p.resource.nil?
       end.compact
       unless resources.empty?
@@ -32,6 +32,7 @@ module OMF::JobService::Resource
     end
 
     def filter_ec_property(val)
+      puts "++++++++++++++++++++++ #{val}"
       unless val.is_a? EcProperty
         val = EcProperty.new(val)
         val.job = self
@@ -39,7 +40,7 @@ module OMF::JobService::Resource
         begin
           val.save
         rescue Exception => ex
-          puts "EXXX>>> #{ex}"
+          puts "ERROR: Can't save - #{ex.resource.errors.inspect} - #{ex.resource.errors.full_messages}"
           raise ex
         end
       end

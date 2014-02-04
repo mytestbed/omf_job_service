@@ -1,0 +1,12 @@
+
+defApplication('generator', 'generator') do |a|
+  a.binary_path = "./generator.rb"
+  a.description = "Signal generator reporting values into OML"
+  #a.defProperty('dest_addr', 'Address to ping', 'a', {:type => :string, :dynamic => false})
+
+  a.defMeasurement('sin') do |m|
+    m.defMetric('label', :string)
+    m.defMetric('angle', :int)
+    m.defMetric('value',:float)
+ end
+end

@@ -1,0 +1,30 @@
+# Simple OEDL Experiment for OMF
+# Application definition is externally
+
+defProperty('res1', "test1", "ID of a node")
+
+defGroup('Generator', property.res1) do |node|
+  node.addApplication("generator")
+end
+
+onEvent(:ALL_UP_AND_INSTALLED) do |event|
+  info "Starting a remote signal generator"
+  allGroups.startApplications
+  info "All my Applications are started now..."
+
+  after 30 do
+    allGroups.stopApplications
+    info "All my Applications are stopped now."
+    Experiment.done
+  end
+end
+
+
+defGraph 'Throughput' do |g|
+  g.ms('udp_in').select {[ oml_ts_client.as(:ts), pkt_length_sum.as(:rate) ]}
+  g.caption "Incoming traffic on receiver."
+  g.type 'line_chart3'
+  g.mapping :x_axis => :ts, :y_axis => :rate
+  g.xaxis :legend => 'time [s]'
+  g.yaxis :legend => 'size [B]', :ticks => {:format => 's'}
+end

@@ -41,6 +41,12 @@ map '/jobs' do
   run opts[:job_handler] || OMF::JobService::JobHandler.new(opts)
 end
 
+map '/queue' do
+  require 'omf/job_service/queue_handler'
+  run OMF::JobService::QueueHandler.new(opts)
+end
+
+
 map '/resources' do
   require 'omf/job_service/resource_handler'
   run opts[:resource_handler] || OMF::JobService::ResourceHandler.new(opts)
@@ -99,7 +105,7 @@ map "/" do
     case req.path_info
     when '/'
       http_prefix = "http://#{env["HTTP_HOST"]}"
-      toc = ['README', :jobs, :users].map do |s|
+      toc = ['README', :queue, :jobs, :users].map do |s|
         "<li><a href='#{http_prefix}/#{s.to_s.downcase}?_format=html&_level=0'>#{s}</a></li>"
       end
       page = {

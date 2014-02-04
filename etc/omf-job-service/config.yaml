@@ -1,1 +1,6 @@
 job_service:
+  omf_exec:
+    ruby: ruby-1.9.3-p362
+    gemset: global
+    path: /usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin
+

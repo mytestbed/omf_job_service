@@ -1,4 +1,16 @@
 #!/bin/bash
 
+: ${HOME:?"Need to set HOME"}
+: ${RUBY:?"Need to set RUBY"}
+: ${GEMSET:="global"}
+
+export GEM_HOME=${HOME}/.rvm/gems/${RUBY}
+export GEM_PATH=${HOME}/.rvm/gems/${RUBY}:${HOME}/.rvm/gems/${RUBY}@${GEMSET}
+export PATH=${HOME}/.rvm/gems/${RUBY}/bin:${HOME}/.rvm/gems/${RUBY}@${GEMSET}/bin:${HOME}/.rvm/rubies/${RUBY}/bin:${HOME}/.rvm/bin:${PATH}
+
+#echo ${GEM_HOME}
+#echo ${GEM_PATH}
+#echo ${PATH}
+
 cd "$( dirname "${BASH_SOURCE[0]}" )"
 bundle exec omf_ec -u amqp://localhost exec $*

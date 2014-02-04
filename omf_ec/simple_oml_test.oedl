@@ -3,7 +3,6 @@
 
 defProperty('res1', "test1", "ID of a node")
 
-
 defApplication('generator', 'generator') do |a|
   a.binary_path = "./generator.rb"
   a.description = "Signal generator reporting values into OML"

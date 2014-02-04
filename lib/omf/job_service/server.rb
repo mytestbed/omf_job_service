@@ -65,8 +65,6 @@ module OMF::JobService
     end
 
     def load_test_state(options)
-      require 'omf-sfa/am/am-rest/rest_handler'
-      OMF::SFA::AM::Rest::RestHandler.set_service_name("OMF Job Service")
 
       require  'dm-migrations'
       DataMapper.auto_migrate!
@@ -86,12 +84,9 @@ module OMF::JobService
       j1 = OMF::JobService::Resource::Job.create(name: 'job1', uuid: j1_uuid, user: u1)
       j2_uuid = UUIDTools::UUID.sha1_create(UUIDTools::UUID_DNS_NAMESPACE, 'job2')
       j2 = OMF::JobService::Resource::Job.create(name: 'job2', uuid: j2_uuid, user: u1)
-#
-      # OMF::ProjectAuthority::Resource::ProjectMember.create(user: u1, project: p1)
-      # OMF::ProjectAuthority::Resource::ProjectMember.create(user: u2, project: p1)
-#
-      # OMF::ProjectAuthority::Resource::ProjectMember.create(user: u2, project: p2)
 
+      # test property query
+      OMF::JobService::Resource::Job.prop_all(status: 'pending')
     end
 
     def run(opts = DEF_OPTS, argv = ARGV)
@@ -114,6 +109,8 @@ module OMF::JobService
           init_authorization(o)
           OMF::JobService.init(o)
 
+          require 'omf-sfa/am/am-rest/rest_handler'
+          OMF::SFA::AM::Rest::RestHandler.set_service_name("OMF Job Service")
           load_test_state(o) if o[:load_test_state]
         end
       }

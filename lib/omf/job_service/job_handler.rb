@@ -19,13 +19,27 @@ module OMF::JobService
       }
     end
 
+    def _convert_obj_to_html(obj, ref_name, res, opts)
+      # puts "O #{ref_name}:#{ref_name.class}  >>>> #{obj.class}: #{obj}"
+      if ref_name == :oedl_script
+        res << " <span class='value'>...</span> "
+        return
+      end
+      super
+    end
+#
+#
     def _convert_array_to_html(array, ref_name, res, opts)
-      #puts "H #{ref_name}:#{ref_name.class}  >>>> #{array}::#{opts}"
+      # puts "H #{ref_name}:#{ref_name.class}  >>>> #{array}::#{opts}"
       if ref_name == :ec_properties
         array.each do |p|
-          puts "CCC>>> #{p.inspect}"
-          if v = p.resource
-            v = _convert_link_to_html(v.href)
+          puts "CCC>>> #{p}"
+          if p.resource?
+            if r = p.resource
+              v = _convert_link_to_html(v.href)
+            else
+              v = "Unassigned resource - #{p.resource_description}"
+            end
           else
             v = p.value
           end

@@ -10,8 +10,8 @@ module OMF::JobService
 
       property :id,   Serial
       property :name, String
-      property :_value, String
-      property :_resource_description, String
+      property :_value, String, length: 256
+      property :_resource_description, String, length: 512
 
       belongs_to :job, OMF::JobService::Resource::Job
       belongs_to :resource, OMF::SFA::Resource::OResource, :required => false
@@ -19,8 +19,8 @@ module OMF::JobService
 
       def initialize(opts)
         puts "EC>>> #{opts}"
-        v = opts.delete(:value)
-        rd = opts.delete(:resource)
+        v = opts.delete(:value) || opts.delete('value')
+        rd = opts.delete(:resource) || opts.delete('resource')
         super
         if v
           self._value = Base64.encode64(Marshal.dump(v))
@@ -58,6 +58,10 @@ module OMF::JobService
           JSON.create_id => self.class.name,
           'id' => self.id
         }.to_json(*args)
+      end
+
+      def to_s
+        "<#{self.class}: name=#{self.name} value=#{self.value} rd=#{self.resource_description}>"
       end
 
       def self.json_create(state)

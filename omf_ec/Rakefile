@@ -33,7 +33,7 @@ task :create_config_file, :frcp_url do |t, args|
   unless frcp_url
     abort "Missing 'frcp_url'. Either export FRCP_URL, or call 'rake create_config_files[FRCP_URL] "
   end
-  target = 'rc_config.yaml'
+  target = 'omf_ec.yaml'
   unless File.readable?("#{target}.in")
     abort "Can't find '#{target}.in' in local directory"
   end
@@ -43,6 +43,4 @@ task :create_config_file, :frcp_url do |t, args|
     f.write(cfg.to_yaml)
   end
   puts ".. Created config file '#{target}'."
-
-  end
 end

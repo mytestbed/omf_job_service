@@ -6,6 +6,10 @@ module OMF::JobService
 
     class SimpleScheduler < OMF::Base::LObject
 
+      def on_new_job(job)
+        warn "Received new job '#{job}', but don't know yet what to do"
+      end
+
       def schedule(res_properties, job)
         res_properties.each {|r| schedule_single(r, job)}
       end

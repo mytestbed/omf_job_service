@@ -21,14 +21,6 @@ module OMF::JobService::Resource
       super
       self.creation = Time.now
       self.status = :pending
-
-      resources = self.ec_properties.select do |p|
-        #puts "PPP>> #{p.inspect}"
-        p.resource? && p.resource.nil?
-      end.compact
-      unless resources.empty?
-        OMF::JobService.scheduler.schedule(resources, self)
-      end
     end
 
     def filter_ec_property(val)

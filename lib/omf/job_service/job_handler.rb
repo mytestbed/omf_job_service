@@ -19,6 +19,13 @@ module OMF::JobService
       }
     end
 
+    # Inform the scheduler about a new incoming job
+    #
+    def on_new_resource(resource)
+      debug "Created: #{resource}"
+      OMF::JobService.scheduler.on_new_job(resource)
+    end
+
     def _convert_obj_to_html(obj, ref_name, res, opts)
       # puts "O #{ref_name}:#{ref_name.class}  >>>> #{obj.class}: #{obj}"
       if ref_name == :oedl_script
@@ -27,13 +34,12 @@ module OMF::JobService
       end
       super
     end
-#
-#
+
     def _convert_array_to_html(array, ref_name, res, opts)
       # puts "H #{ref_name}:#{ref_name.class}  >>>> #{array}::#{opts}"
       if ref_name == :ec_properties
         array.each do |p|
-          puts "CCC>>> #{p}"
+          #puts "CCC>>> #{p}"
           if p.resource?
             if r = p.resource
               v = _convert_link_to_html(v.href)

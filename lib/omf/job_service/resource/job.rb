@@ -32,7 +32,6 @@ module OMF::JobService::Resource
     end
 
     def filter_ec_property(val)
-      puts "++++++++++++++++++++++ #{val}"
       unless val.is_a? EcProperty
         val = EcProperty.new(val)
         val.job = self

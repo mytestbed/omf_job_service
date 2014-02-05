@@ -3,7 +3,19 @@
   "name": "foo-2000",
   "description": "Let's start small",
   "priority": 0,
-  "oidl_script": "git:foo.oidl",
+  "oedl_script": {
+    "type": "application/zip",
+    "encoding": "base64",
+    "content": [
+      "eJydkl1rwjAUhu/zK17iRVuYFRGE7U5mNwYOZbrrUZsTDWuTksSh4I9fUp3b",
+      "xRjbLgLn8z1PTtLDUjVtTZgX0xmKfUtWNaQ9pLGYP96xHoRybV0eHPyWsDXO",
+      "67IhlFpAlJ4GPtTDyC5rqTGe8HTLmCC5sCbI+UOaWHLD5Arck/NDHoyHaWwp",
+      "oY0gnsXie2t2bZpMKm9sKG3PvXlszRgzungLWOnNZDZ7eV5kEAZHiqEjA3pI",
+      "SunJJlAuaHqsa1O9Kr3JsdqGEO2p2oXhGMFRZbRw6OpxloNUlkQelE7hUZAP",
+      "DqC0NOCrYrlCH2Vdd5SOd7mLm0f5lA/WSg/iSsKFANLiL2DjH8GAC9r4W7RN",
+      "BDlhdWbKu0Xy7Cvb5e368j+I179FvP5A/PxOuTCaziPjYe8g8MbD"
+    ]
+  },
   "ec_properties": [
     {
       "name" : "data-rate",

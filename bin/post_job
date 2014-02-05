@@ -1,4 +1,4 @@
-
+#!/usr/bin/env ruby
 
 # $0 --name foo200 -- simple_test.oedl --more a --foo xx@node -x
 
@@ -8,21 +8,25 @@ require 'optparse'
 require 'base64'
 require 'net/http'
 
+$verbose = false
+
 name = nil
 uri = URI.parse('http://localhost:8002/jobs')
 
 optparse = OptionParser.new do |opts|
   opts.banner = "Usage: #{$0} [options] -- scriptFile [scriptOptions]"
 
-
   opts.on('-n', '--name NAME', 'Name of experiment' ) do |n|
     name = n
   end
 
-  # TODO: Put command-line options here
+  opts.on('-u', '--url URL', "URL for job service [#{uri}]" ) do |url|
+    uri = URI.parse(url)
+  end
 
-  # This displays the help screen, all programs are
-  # assumed to have this option.
+  opts.on('-v', '--verbose', "Print more information about what's going on. [#{$verbose}]" ) do |url|
+    $verbose = true
+  end
   opts.on( '-h', '--help', 'Display this screen' ) do
     puts opts
     exit
@@ -84,16 +88,15 @@ job = {
   ec_properties: properties
 }
 
-puts JSON.pretty_generate(job)
-
 # OK, time ot post it
-
-
-
+if $verbose
+  puts "Sending the following request to '#{uri}'"
+  puts JSON.pretty_generate(job)
+end
 
 req = Net::HTTP::Post.new(uri.path, {'Content-Type' =>'application/json'})
 #req.basic_auth @user, @pass
 req.body = JSON.pretty_generate(job)
 response = Net::HTTP.new(uri.host, uri.port).start {|http| http.request(req) }
-puts "Response #{response.code} #{response.message}: #{response.body}"
+puts "Response #{response.code} #{response.message}:\n#{response.body}"
 

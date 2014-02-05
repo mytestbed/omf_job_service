@@ -49,7 +49,7 @@ module OMF::JobService
 
       content = ["<ul>"]
       jobs.each do |job|
-              puts "JOB #{job.uuid} -- #{job.status}"
+        #puts "JOB #{job.uuid} -- #{job.status}"
         content << "<li>#{_convert_job_to_link job}</li>"
       end
       content << '</ul>'
@@ -57,7 +57,6 @@ module OMF::JobService
     end
 
     def _convert_job_to_link(job)
-      h = '????'
       "<a href='/jobs/#{job.uuid}?_format=html&_level=2'>#{job.name}</a>"
     end
 

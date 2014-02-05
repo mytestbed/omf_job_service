@@ -13,9 +13,7 @@ Testing
 
 To test the setup, run a simple experiment
 
-    export RUBY=ruby-1.9.3-p484  # set that to whatever version you are using
-    export FRCP_URL=amqp:/amqp.acme.com # set to your amqp server
-    ./omf_ec simple_test.oedl -- --res1 node1
+    ./omf_ec simple_test.oedl -- --res1 test1
 
 which should show you something like:
 

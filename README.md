@@ -19,7 +19,7 @@ At this stage the best course of action is to clone the repository
     bundle install --path vendor
 
 Before starting the service, please also install tan OMF EC in the 'omf_ec' directoy
-following the instructions in the [omf_ec/README.md](README) in that directory.
+following the instructions in the [README](omf_ec/README.md) in that directory.
 
 Starting the Service
 --------------------

@@ -5,16 +5,33 @@ Installation
 ------------
 
     bundle install --path vendor
-    
+
+Then configure the EC to work in your local environment by editing ??????? (Thierry, Christoph??)
+
 Testing
 -------
 
 To test the setup, run a simple experiment
 
-    ./omf_ec simple_test.oedl
-    
+    export RUBY=ruby-1.9.3-p484  # set that to whatever version you are using
+    export FRCP_URL=amqp:/amqp.acme.com # set to your amqp server
+    ./omf_ec simple_test.oedl -- --res1 node1
+
+which should show you something like:
+
+    OMF Experiment Controller - Copyright (c) 2012-13 National ICT Australia Limited (NICTA)
+    04:01:48 INFO  Object: OMF Experiment Controller 6.0.8.pre.4
+    04:01:48 INFO  Object: Connected using {:proto=>:amqp, :user=>"guest", :domain=>"127.0.0.1"}
+    04:01:48 INFO  Object: Execute: /home/ubuntu/omf_job_service/omf_ec/simple_test.oedl
+    04:01:48 INFO  Object: Properties: {}
+    04:01:48 INFO  OmfEc::ExperimentProperty: res1 = "test1" (String)
+    04:01:48 INFO  OmfEc::Experiment: Experiment: 2014-02-05T04:01:47.926Z starts
+    04:01:48 INFO  OmfEc::Experiment: Configure 'test1' to join 'Actor'
+
+If you want to test it with a fully local setup, checkout the [README](../test/omf_rc/README.md)
+in the '../test/omf_rc' directory for standing up a local RC
+
 To test if the OML environment is setup correctly as well, use
 
     export OML_URL=tcp://srv.mytestbed.net:3004
     ./omf_ec --oml_uri $OML_URL simple_oml_test.oedl
-  

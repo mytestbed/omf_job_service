@@ -1,0 +1,48 @@
+
+require 'yaml'
+
+desc "Call after 'bundle install --path vendor'"
+task 'post-install', [:frcp_url] => [:create_omf_ec, :create_config_file]
+
+
+task :create_omf_ec, :frcp_url do |t, args|
+  target = 'omf_ec'
+  frcp_url = args[:frcp_url] || ENV['FRCP_URL']
+  unless frcp_url
+    abort "Missing 'frcp_url'. Either export FRCP_URL, or call 'rake create_config_files[FRCP_URL] "
+  end
+  unless File.readable?("#{target}.in")
+    abort "Can't find '#{target}.in' in local directory"
+  end
+  tmpl = File.read("#{target}.in")
+
+  home = ENV['HOME']
+  gp = ENV['GEM_PATH']
+  d, ruby, gemset = gp.match(/.*(ruby.*)@(.*)/).to_a
+
+  s = tmpl.gsub('%HOME%', home).gsub('%RUBY%', ruby).gsub('%GEMSET%', gemset).gsub('%FRCP_URL%', frcp_url)
+  File.open(target, 'w') do |f|
+    f.write(s)
+  end
+  File.chmod(0755, target)
+  puts ".. Created '#{target}'."
+end
+
+task :create_config_file, :frcp_url do |t, args|
+  frcp_url = args[:frcp_url] || ENV['FRCP_URL']
+  unless frcp_url
+    abort "Missing 'frcp_url'. Either export FRCP_URL, or call 'rake create_config_files[FRCP_URL] "
+  end
+  target = 'rc_config.yaml'
+  unless File.readable?("#{target}.in")
+    abort "Can't find '#{target}.in' in local directory"
+  end
+  cfg = YAML.load_file("#{target}.in")
+  cfg[:u] = frcp_url
+  File.open(target, 'w') do |f|
+    f.write(cfg.to_yaml)
+  end
+  puts ".. Created config file '#{target}'."
+
+  end
+end

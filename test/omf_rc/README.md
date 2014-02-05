@@ -5,9 +5,9 @@ Installation
 ------------
 
     bundle install --path vendor
-    rake create_ruby_wrapper
-    
+    rake post-install
+
 Starting an RC
 --------------
 
-    ./start_rc test1.yml
+    ./start_rc -c test1.yml

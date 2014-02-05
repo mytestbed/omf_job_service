@@ -1,0 +1,47 @@
+
+require 'yaml'
+
+desc "Call after 'bundle install --path vendor'"
+task 'post-install', [:frcp_url] => [:create_ruby_wrapper, :create_config_files]
+
+
+task :create_ruby_wrapper, :frcp_url do |t, args|
+  ruby_wrapper = 'ruby_wrapper'
+  unless File.readable?("#{ruby_wrapper}.in")
+    abort "Can't find '#{ruby_wrapper}.in' in local directory"
+  end
+  tmpl = File.read("#{ruby_wrapper}.in")
+
+  home = ENV['HOME']
+  gp = ENV['GEM_PATH']
+  d, ruby, gemset = gp.match(/.*(ruby.*)@(.*)/).to_a
+
+  s = tmpl.gsub('%HOME%', home).gsub('%RUBY%', ruby).gsub('%GEMSET%', gemset)
+  File.open(ruby_wrapper, 'w') do |f|
+    f.write(s)
+  end
+  File.chmod(0755, ruby_wrapper)
+  puts ".. Created '#{ruby_wrapper}'."
+end
+
+task :create_config_files, :frcp_url do |t, args|
+  frcp_url = args[:frcp_url] || ENV['FRCP_URL']
+  unless frcp_url
+    abort "Missing 'frcp_url'. Either export FRCP_URL, or call 'rake create_config_files[FRCP_URL] "
+  end
+  rc_config = 'rc_config.yaml'
+  unless File.readable?("#{rc_config}.in")
+    abort "Can't find '#{rc_config}.in' in local directory"
+  end
+  cfg = YAML.load_file("#{rc_config}.in")
+  cfg[:uri] = frcp_url
+  2.times do |i|
+    fn = "test#{i + 1}_config.yaml"
+    File.open(fn, 'w') do |f|
+      cfg[:uid] = "test#{i + 1}"
+      f.write(cfg.to_yaml)
+    end
+    puts ".. Created config file '#{fn}'."
+
+  end
+end

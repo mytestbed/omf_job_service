@@ -1,6 +1,6 @@
 ---
-:uid: test1
-:uri: amqp://localhost
+:uid: RES_NAME
+:uri: FRCP_URL
 :environment: development
 #:environment: production
 :debug: false

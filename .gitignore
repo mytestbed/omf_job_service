@@ -5,3 +5,6 @@ vendor
 test/omf_rc/bin
 test/omf_rc/ruby_wrapper
 omf_ec/bin
+test/omf_rc/test1_config.yaml
+test/omf_rc/test2_config.yaml
+test/omf_rc/ruby_wrapper

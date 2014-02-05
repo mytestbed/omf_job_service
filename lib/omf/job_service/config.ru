@@ -61,36 +61,14 @@ end
 
 map "/readme" do
   require 'bluecloth'
-  s = File::read(File.dirname(__FILE__) + '/../../../README.md')
-  frag = BlueCloth.new(s).to_html
-  wrapper = %{
-<html>
-  <head>
-    <title>OMF Project Authority API</title>
-    <link href="/assets/css/default.css" media="screen" rel="stylesheet" type="text/css">
-    <style type="text/css">
-      circle.node {
-        stroke: #fff;
-        stroke-width: 1.5px;
-      }
-
-      line.link {
-        stroke: #999;
-        stroke-opacity: .6;
-        stroke-width: 2px;
-
-      }
-</style>
-  </head>
-  <body>
-%s
-  </body>
-</html>
-}
   p = lambda do |env|
-  puts "#{env.inspect}"
-
-    return [200, {"Content-Type" => "text/html"}, [wrapper % frag]]
+    s = File::read(File.dirname(__FILE__) + '/../../../README.md')
+    frag = BlueCloth.new(s).to_html
+    page = {
+      service: '<h2><a href="/?_format=html">ROOT</a>/<a href="/readme">Readme</a></h2>',
+      content: frag
+    }
+    [200 ,{'Content-Type' => 'text/html'}, OMF::SFA::AM::Rest::RestHandler.render_html(page)]
   end
   run p
 end

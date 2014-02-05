@@ -1,5 +1,5 @@
 ---
-:u: amqp://localhost
+:u: FRCP_URL
 :root_cert_dir: 
 :cert: 
 :key: 
@@ -9,9 +9,7 @@
 :d: false
 :x: false
 :help: false
-:uri: xmpp://localhost
 :debug: false
-:xmpp: false
 commands:
   :_doc: {}
   :exec: {}

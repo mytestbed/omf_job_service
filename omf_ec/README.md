@@ -5,8 +5,8 @@ Installation
 ------------
 
     bundle install --path vendor
-
-Then configure the EC to work in your local environment by editing ??????? (Thierry, Christoph??)
+    export FRCP_URL=amqp://localhost # or your favorite FRCP comms provider
+    rake post-install
 
 Testing
 -------

@@ -13,9 +13,24 @@ At this stage the best course of action is to clone the repository
 
     git clone https://github.com/mytestbed/omf_job_service.git
     cd omf_job_service
-    sudo apt-get install sqlite3  # for Debian/Ubuntu systems
+
+This service requires 'ruby1.9.3' provided by RVM. If you don't have one in this account, install it with:
+
+    curl -sSL https://get.rvm.io | bash -s stable --ruby=1.9.3
+
+Before installing the necessary Gems, make sure that you have the necessary libraries installed. On a Ubuntu
+system, execute the following:
+
+    sudo apt-get install sqlite3
     sudo apt-get install libxml2-dev
     sudo apt-get install libxslt-dev
+
+On Ubuntu 12.04 LTS you will also need to install the following package:
+
+    sudo apt-get install sqlite3-dev
+
+Now we are ready to install all the necessary Gems
+
     bundle install --path vendor
 
 Before starting the service, please also install tan OMF EC in the 'omf_ec' directoy

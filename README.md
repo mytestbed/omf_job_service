@@ -108,4 +108,6 @@ The list of parameters for the job itself can be listed after a '--' following t
 command. What is different here is the identification of a resource in the argument parameter. Resources are identified by a
 'name@type' convention. If 'name' is omitted, the scheduler automatically assigns a suitable resource of the requested type.
 
+To get a listing of the active, or pending jobs, got to [http://localhost:8002/queue](http://localhost:8002/queue?_format=html)
+
 

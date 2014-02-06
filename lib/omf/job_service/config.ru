@@ -66,7 +66,7 @@ map "/readme" do
     frag = BlueCloth.new(s).to_html
     page = {
       service: '<h2><a href="/?_format=html">ROOT</a>/<a href="/readme">Readme</a></h2>',
-      content: frag
+      content: frag.gsub('http://localhost:8002', "http://#{env["HTTP_HOST"]}")
     }
     [200 ,{'Content-Type' => 'text/html'}, OMF::SFA::AM::Rest::RestHandler.render_html(page)]
   end

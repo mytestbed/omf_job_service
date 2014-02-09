@@ -24,7 +24,7 @@ module OMF::JobService::Resource
       self.creation = Time.now
       self.status = :pending
       # TODO: Make this configurable
-      self.oml_db = 'psql://oml2:omlisgoodforyou@srv.mytestbed.net/' + self.name
+      self.oml_db = 'postgres://oml2:omlisgoodforyou@srv.mytestbed.net/' + self.name
     end
 
     def filter_ec_property(val)

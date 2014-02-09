@@ -10,8 +10,10 @@ module OMF::JobService::Resource
     oproperty :creation, DataMapper::Property::Time
     oproperty :description, String
     oproperty :priority, Integer
+    oproperty :slice, String
     oproperty :oedl_script, String
     oproperty :ec_properties, Object, functional: false, set_filter: :filter_ec_property
+    oproperty :oml_db, String
 
 
     oproperty :status, String
@@ -21,6 +23,8 @@ module OMF::JobService::Resource
       super
       self.creation = Time.now
       self.status = :pending
+      # TODO: Make this configurable
+      self.oml_db = 'psql://oml2:omlisgoodforyou@srv.mytestbed.net/' + self.name
     end
 
     def filter_ec_property(val)
@@ -41,6 +45,7 @@ module OMF::JobService::Resource
     def to_hash_brief(opts = {})
       h = super
       h[:status] = self.status
+      h[:oml_db] = self.oml_db
       h
     end
 

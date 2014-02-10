@@ -44,7 +44,7 @@ Starting the Service
 To start a project authority with a some pre-populated resources ('--test-load-state') from this directory, run the following:
 
     cd omf_job_service
-    bundle exec bin/omf_job_service --test-load-state --dm-auto-upgrade --disable-https start
+    bin/omf_job_service --test-load-state --dm-auto-upgrade --disable-https start
 
 which should result in something like:
 

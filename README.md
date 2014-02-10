@@ -27,7 +27,7 @@ system, execute the following:
 
 On Ubuntu 12.04 LTS you will also need to install the following package:
 
-    sudo apt-get install sqlite3-dev
+    sudo apt-get install libsqlite3-dev
 
 Now we are ready to install all the necessary Gems
 
@@ -94,7 +94,7 @@ If you use the above web browser option, refresh the job listing and you should 
 
 A more user friendly way to schedule a job is using the 'post_job' command in the 'bin' directory
 
-    $ bin/post_job omf_ec/simple_test.oedl -- --res1 @node
+    $ bin/post_job -u http://localhost:8002/jobs omf_ec/simple_test.oedl -- --res1 @node
     Response 200 OK:
     {
       "type": "job",

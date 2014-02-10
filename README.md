@@ -29,8 +29,7 @@ On Ubuntu 12.04 LTS you will also need to install the following package:
 
     sudo apt-get install libsqlite3-dev
 
-** At this stage, please clone https://github.com/mytestbed/omf_sfa.git into the parent directory
-   and update it (git pull) regularily. **
+** At this stage, please clone https://github.com/mytestbed/omf_sfa.git into the parent directory and update it (git pull) regularily. **
 
 Now we are ready to install all the necessary Gems
 

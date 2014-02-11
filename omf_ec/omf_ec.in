@@ -11,4 +11,4 @@ export GEM_PATH=${HOME}/.rvm/gems/${RUBY}:${HOME}/.rvm/gems/${RUBY}@${GEMSET}
 export PATH=${HOME}/.rvm/gems/${RUBY}/bin:${HOME}/.rvm/gems/${RUBY}@${GEMSET}/bin:${HOME}/.rvm/rubies/${RUBY}/bin:${HOME}/.rvm/bin:${PATH}
 
 cd "$( dirname "${BASH_SOURCE[0]}" )"
-bundle exec omf_ec -u ${FRCP_URL} -c omf_ec.yml exec  $*
+bundle exec omf_ec -u ${FRCP_URL} -c omf_ec.yml exec --show-graph  $*

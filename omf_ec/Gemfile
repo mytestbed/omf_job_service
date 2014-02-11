@@ -13,4 +13,5 @@ gem 'omf_common', override_with_local(path: '../../omf6/omf_common', version: "~
 gem 'omf_ec', override_with_local(path: '../../omf6/omf_ec', version: "~> 6.0.8.pre")
 gem 'amqp'
 gem 'json-jwt'
+gem 'pg'
 

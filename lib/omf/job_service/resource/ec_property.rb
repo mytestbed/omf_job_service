@@ -10,8 +10,8 @@ module OMF::JobService
 
       property :id,   Serial
       property :name, String
-      property :_value, String, length: 256
-      property :_resource_description, String, length: 512
+      property :_is_resource, Boolean
+      property :_marshal, String, length: 512
 
       belongs_to :job, OMF::JobService::Resource::Job
       belongs_to :resource, OMF::SFA::Resource::OResource, :required => false
@@ -22,28 +22,25 @@ module OMF::JobService
         v = opts.delete(:value) || opts.delete('value')
         rd = opts.delete(:resource) || opts.delete('resource')
         super
-        if v
-          self._value = Base64.encode64(Marshal.dump(v))
+        if v && rd
+          raise "Can't have both :value and :resource defined. Pick one"
         end
-        if rd
-          self._resource_description = Base64.encode64(Marshal.dump(rd))
-        end
+        self._marshal = Base64.encode64(Marshal.dump(v || rd))
+        self._is_resource = (rd != nil)
       end
 
       def value
         unless @value
-          if v = self._value
-            @value = Marshal.load(Base64.decode64(v))
-          end
+          return nil if self._is_resource
+          @value = Marshal.load(Base64.decode64(self._marshal))
         end
         @value
       end
 
       def resource_description
         unless @resource_description
-          if rd = self._resource_description
-            @resource_description = Marshal.load(Base64.decode64(rd))
-          end
+          return nil unless self._is_resource
+          @resource_description = Marshal.load(Base64.decode64(self._marshal))
         end
         @resource_description
       end
@@ -54,7 +51,7 @@ module OMF::JobService
       end
 
       def resource?
-        self.resource_description != nil
+        self._is_resource
       end
 
       def to_hash()

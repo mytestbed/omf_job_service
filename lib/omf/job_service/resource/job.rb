@@ -15,6 +15,9 @@ module OMF::JobService::Resource
     oproperty :ec_properties, Object, functional: false, set_filter: :filter_ec_property
     oproperty :oml_db, String
 
+    # TODO: Add here some properties and constant defaults for OML URI
+    # @@db_uri_prefix = DEF_DB_URI_PREFIX
+    # @@db_oml_server = DEF_DB_OML_SERVER
 
     oproperty :status, String
     oproperty :user, :user, inverse: :jobs

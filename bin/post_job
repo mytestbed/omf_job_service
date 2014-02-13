@@ -64,7 +64,7 @@ while i < ARGV.length
   unless (arg = ARGV[i + 1] || '').start_with? '-'
     if (r = arg.split('@')).length > 1
       # resource
-      prop[:resource] = rd = {type: 'node'}
+      prop[:resource] = rd = {type: (r[1] || 'node')}
       rd[:name] = r[0] unless r[0].empty?
     else
       prop[:value] = arg unless arg.empty?

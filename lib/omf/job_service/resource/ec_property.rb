@@ -31,23 +31,62 @@ module OMF::JobService
 
       def value
         unless @value
-          return nil if self._is_resource
+          if self._is_resource
+            raise "This is not a 'value' property"
+          end
           @value = Marshal.load(Base64.decode64(self._marshal))
         end
         @value
       end
 
+      def value=(v)
+        if self._is_resource
+          raise "This is not a 'value' property"
+        end
+        self._marshal = Base64.encode64(Marshal.dump(v))
+        @value = v
+      end
+
       def resource_description
         unless @resource_description
-          return nil unless self._is_resource
+          unless self._is_resource
+            raise "This is not a 'resource' property"
+          end
           @resource_description = Marshal.load(Base64.decode64(self._marshal))
         end
-        @resource_description
+        @resource_description || {}
+      end
+
+      def resource_description=(rd)
+        unless self._is_resource
+          raise "This is not a 'resource' property"
+        end
+        self._marshal = Base64.encode64(Marshal.dump(rd))
+        @resource_description = rd
       end
 
       def resource_name
         rd = resource_description
         rd.nil? ? nil : rd[:name] || rd['name']
+      end
+
+      def resource_name=(name)
+        rd = resource_description
+        rd.delete('name')
+        rd[:name] = name
+        resource_description = rd
+      end
+
+      def resource_type
+        rd = resource_description
+        rd.nil? ? nil : rd[:type] || rd['type']
+      end
+
+      def resource_type=(type)
+        rd = resource_description
+        rd.delete('type')
+        rd[:type] = type
+        resource_description = rd
       end
 
       def resource?

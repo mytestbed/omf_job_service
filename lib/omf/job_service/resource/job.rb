@@ -28,12 +28,10 @@ module OMF::JobService::Resource
     oproperty :oedl_script, String
     oproperty :ec_properties, Object, functional: false, set_filter: :filter_ec_property
     oproperty :oml_db, String
+    #oproperty :start_time, Date
+    oproperty :start_time, Time
+    oproperty :end_time, Time
     oproperty :exit_code, Integer
-
-    # TODO: Add here some properties and constant defaults for OML URI
-    # @@db_uri_prefix = DEF_DB_URI_PREFIX
-    # @@db_oml_server = DEF_DB_OML_SERVER
-
     oproperty :status, String
     oproperty :user, :user, inverse: :jobs
 
@@ -82,13 +80,14 @@ module OMF::JobService::Resource
       # Put together the command line and return
       cmd = "env -i #{EC_PATH} -e #{self.name} --oml_uri #{oml_server} #{script_file.path} -- #{opts.join(' ')}"
       debug "Executing '#{cmd}'"
-
+      self.start_time = Time.now
       OMF::Base::ExecApp.new(self.name, cmd) do |event, id, msg|
         if event == 'EXIT'
           ex_c = msg.to_i
           debug "Experiment '#{self.name}' finished with exit code '#{ex_c}'"
           self.status = (ex_c == 0) ? :finished : :failed
           self.exit_code = ex_c
+          self.end_time = Time.now
           self.save
           script_file.unlink
           post_run_block.call() if post_run_block

@@ -19,6 +19,26 @@ module OMF::JobService
       }
     end
 
+    def show_resource_list(opts)
+      # authenticator = Thread.current["authenticator"]
+      q = {}
+      opts[:req].params.each do |k, v|
+        case k
+        when 'pending'
+          q[:status] = 'pending'
+        when 'active'
+          q[:status] = 'active'
+        else
+          warn "Unknown selector '#{k}' for Job list"
+        end
+      end
+      debug "Job list selectors '#{q}'"
+      resources = OMF::JobService::Resource::Job.prop_all(q)
+
+      #resources = @resource_class.all()
+      show_resources(resources, nil, opts)
+    end
+
     # Inform the scheduler about a new incoming job
     #
     def on_new_resource(resource)

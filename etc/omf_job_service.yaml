@@ -1,6 +1,7 @@
 job_service:
-  #dm_db:
-  #dm_log:
+
+  dm_auto_upgrade: true
+  disable_https: true
 
   jobs:
     oml_server: tcp:localhost:3004

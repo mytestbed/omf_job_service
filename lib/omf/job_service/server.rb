@@ -24,17 +24,11 @@ module OMF::JobService
 
     ETC_DIR = File.join(File.dirname(__FILE__), '/../../../etc/omf-job-service')
 
-    def init_logger
+    def init_logger(options)
       OMF::Base::Loggable.init_log 'server', :searchPath => File.join(File.dirname(__FILE__), 'server')
-
-      @config = OMF::Base::YAML.load('config', :path => [ETC_DIR])[:project_authority]
     end
 
     def init_data_mapper(options)
-      #@logger = OMF::Base::Loggable::_logger('am_server')
-      #OMF::Base::Loggable.debug "options: #{options}"
-      debug "options: #{options}"
-
       # Configure the data store
       #
       DataMapper::Logger.new(options[:dm_log] || $stdout, :info)
@@ -89,6 +83,27 @@ module OMF::JobService
       OMF::JobService::Resource::Job.prop_all(status: 'pending')
     end
 
+    def read_config_file(o)
+      unless cf = o.delete(:config_file)
+        puts "ERROR: Missing config file"
+        exit(-1)
+      end
+      unless File.readable? cf
+        puts "ERROR: Can't read config file '#{cf}'"
+        exit(-1)
+      end
+      # This is a bit a hack as the #load method is a bit too smart for this
+      f = File.basename(cf)
+      d = File.dirname(cf)
+      config = OMF::Base::YAML.load(f, :path => [d])[:job_service]
+
+      defaults = o.delete(:defaults) || {}
+      opts = defaults.merge(o)
+      opts = config.merge(opts)
+      opts
+    end
+
+
     def run(opts = DEF_OPTS, argv = ARGV)
       opts[:handlers] = {
         # Should be done in a better way
@@ -97,14 +112,18 @@ module OMF::JobService
         :pre_parse => lambda do |p, options|
           p.on("--test-load-state", "Load an initial state for testing") do |n| options[:load_test_state] = true end
           p.separator ""
+          p.separator "Job Service options:"
+          p.on("--config FILE", "Job Service config file [#{options[:config_file]}]") do |n| options[:config_file] = n end
+          p.separator ""
           p.separator "Datamapper options:"
-          p.on("--dm-db URL", "Datamapper database [#{options[:dm_db]}]") do |u| options[:dm_db] = u end
-          p.on("--dm-log FILE", "Datamapper log file [#{options[:dm_log]}]") do |n| options[:dm_log] = n end
+          p.on("--dm-db URL", "Datamapper database [#{options[:defaults][:dm_db]}]") do |u| options[:dm_db] = u end
+          p.on("--dm-log FILE", "Datamapper log file [#{options[:defaults][:dm_log]}]") do |n| options[:dm_log] = n end
           p.on("--dm-auto-upgrade", "Run Datamapper's auto upgrade") do |n| options[:dm_auto_upgrade] = true end
           p.separator ""
         end,
         :pre_run => lambda do |o|
-          init_logger()
+          o = read_config_file(o)
+          init_logger(o)
           init_data_mapper(o)
           init_authorization(o)
           OMF::JobService.init(o)

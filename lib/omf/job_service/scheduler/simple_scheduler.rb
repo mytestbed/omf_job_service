@@ -12,13 +12,17 @@ module OMF::JobService
       POLL_PERIOD = 5 # period in second when the scheduler should wake up
       SUPPORTED_RESOURCE_TYPES = [ :node ]
 
-      @@available_resources = ['00121', 'wlan-0a118113.ipt.nicta.com.au']
-      @@started = false
-      @@running_jobs = []
+
+      def initialize(opts)
+        @available_resources = opts[:resources]
+        debug "Available resource: #{@available_resources}"
+        @started = false
+        @running_jobs = []
+      end
 
       def start
-        return if @@started
-        @@started = true
+        return if @started
+        @started = true
 
         EM.add_periodic_timer(POLL_PERIOD) do
 
@@ -33,8 +37,8 @@ module OMF::JobService
           # Refresh the list of available resources
           # TODO: in this simple example, for now just get a test list of known fixed resources
           # (some more code to be placed here to get the list of available resource!)
-          debug ">>> available resource: #{@@available_resources}"
-          res  = @@available_resources
+          debug "Available resource: #{@available_resources}"
+          res  = @available_resources
           schedule(res, pending_jobs.first)
 
         end
@@ -90,11 +94,11 @@ module OMF::JobService
         unless supported_types?(type)
           raise UnknownResourceException("requests a resource of type '#{type}' not supported by this scheduler")
         end
-        res = @@available_resources.delete_at(0)
+        res = @available_resources.delete_at(0)
       end
 
       def dealloc_resources_for_job(job)
-        job.resources.each { |r| @@available_resources << r.resource_name }
+        job.resources.each { |r| @available_resources << r.resource_name }
       end
 
     end

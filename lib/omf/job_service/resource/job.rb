@@ -12,7 +12,14 @@ module OMF::JobService::Resource
     EC_PATH = File.absolute_path(File.join(File.dirname(__FILE__), '../../../../omf_ec/omf_ec'))
     raise "Can't find executable 'omf_ec' - #{EC_PATH}" unless File.executable?(EC_PATH)
 
-    @@oml_server = 'tcp:localhost:3004'
+    DEF_OML_SERVER = 'tcp:localhost:3004'
+    DEF_DB_SERVER = 'postgres://oml:oml_nictaNPC@srv.mytestbed.net'
+
+    def self.init(cfg)
+      @@oml_server = cfg[:oml_server] || DEF_OML_SERVER
+      @@db_server_prefix = cfg[:db_server] || DEF_DB_SERVER
+    end
+
 
     oproperty :creation, DataMapper::Property::Time
     oproperty :description, String
@@ -35,7 +42,7 @@ module OMF::JobService::Resource
       self.creation = Time.now
       self.status = :pending
       # TODO: Make this configurable
-      self.oml_db = 'postgres://oml:oml_nictaNPC@srv.mytestbed.net/' + self.name
+      self.oml_db = "#{@@db_server_prefix}/#{self.name}"
 
       #EM.next_tick { run }
     end

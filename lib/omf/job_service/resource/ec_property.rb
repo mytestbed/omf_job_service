@@ -66,15 +66,18 @@ module OMF::JobService
       end
 
       def resource_name
+puts ">>> Reading up resource name on #{self.name} with ID: #{self.id} (obj id: #{self.object_id}"
         rd = resource_description
         rd.nil? ? nil : rd[:name] || rd['name']
       end
 
       def resource_name=(name)
+puts ">>> Setting up resource name on #{self.name} with ID: #{self.id} (obj id: #{self.object_id}"
         rd = resource_description
         rd.delete('name')
         rd[:name] = name
         resource_description = rd
+        save
       end
 
       def resource_type

@@ -29,9 +29,9 @@ module OMF::JobService
         EM.add_periodic_timer(POLL_PERIOD) do
 
           # DEBUG ONLY
-          #all_jobs = OMF::JobService::Resource::Job.all()
-          #all_jobs.each { |j| debug ">>> Job - '#{j.name}' - '#{j.status}'" }
-          #debug ">>> available resource: #{@@available_resources}"
+          all_jobs = OMF::JobService::Resource::Job.all()
+          all_jobs.each { |j| debug ">>> Job - '#{j.name}' - '#{j.status}'" }
+          debug ">>> available resource: #{@@available_resources}"
 
           # refresh the list of pending jobs from the database
           pending_jobs = OMF::JobService::Resource::Job.prop_all(status: 'pending')
@@ -59,112 +59,77 @@ module OMF::JobService
       
       def schedule(resources, job)
         return if resources.empty? || job.nil?
-        # Extract the resource requirements for this job
-        res_req = []
+        # Try to allocate resources to this job
+        # If it has all its requested resources fully allocated then run it
+puts ">>> TDB - schedule -  #{job.resource.to_s}"
+job.resource.each { |e| puts ">>> TDB - schedule - resource - #{e.name} - #{e.resource_type} - value: '#{e.resource_name}'" }
+
+        if alloc_resource(resources, job)
+          info "Running job '#{job.name}' with resource(s) #{job.resource.to_s}"
+
+job.resource.each { |e| puts ">>> TDB - schedule - resource - #{e.name} - #{e.resource_type} - value: '#{e.resource_name}'" }
+
+          # Start the job
+          job.run { |j| dealloc_resource(j) }
+        end
+      end
+
+      def alloc_resource(res, job)
         job.ec_properties.each do |e|
-          unless (rd = e.value["resource"]).nil?
-            type = rd[:type] || rd['type']
+          if e.resource?
+            type = e.resource_type
             unless type.nil?
               if supported_types?(type.downcase.to_sym)
-                res_req << {:name => e.value["name"] , :type => type, :assigned_to => nil}
+puts ">>> TDB - alloc_resource A - #{e.name} - value: '#{e.resource_name}' (free: #{@@available_resources})"
+                e.resource_name = @@available_resources.delete_at(0) 
+                e.save
+                job.save
+puts ">>> TDB - alloc_resource B - #{e.name} - value: '#{e.resource_name}' (free: #{@@available_resources})"
+                if e.resource_name.nil?
+                  warn "Job '#{job.name}'. Not enough free resources to run this job now, will try again later."
+                  return false
+                end
               else
-                warn "Job '#{job.name}' requests a resource of type '#{type}', which is not supported by this scheduler"
+                warn "Job '#{job.name}' requests a resource of type '#{type}' not supported by this scheduler. Cannot schedule this job!"
+                job.status = :unsupported
+                return false
               end
             end
           end
         end
-        # debug ">>> Resource Requested -  #{res_req.inspect}"
-
-        # Determine if there are enough free resources to run this job now
-        # If so, then run the job and mark it accordingly, do nothing otherwise
-        if res_req.length <= @@available_resources.length
-          # Assign the first available resources to this job
-          res_alloc = alloc_resource(res_req)
-          info "Running job '#{job.name}' with resource(s) #{res_alloc.to_s}"
-          # Start the job
-          cmd = build_job_cmd(job, res_alloc)
-          #debug ">>> Job Command line: '#{cmd}'"
-          OMF::Base::ExecApp.new(job.name, cmd) { |event, id, msg| on_job_event(job, res_alloc, event, id, msg) }
-          job.status = :running
-        end
+        return true
       end
 
-      def on_job_event(job, res_alloc, event, id, msg)
-        info "Job '#{id}' - Event '#{event}' : #{msg}"
-        # When the job is completed, mark it so and deallocate its resources
-        if event.downcase.to_sym == :exit
-          job.status = :completed 
-          dealloc_resource(res_alloc)
-        end
-      end 
-
-      def alloc_resource(request)
-        request.each_index do |i|
-          request[i][:assigned_to] = @@available_resources.delete_at(0)
-        end
-        request
+      def dealloc_resource(job)
+        job.resource.each { |r| @@available_resources << r.resource_name }
       end
 
-      def dealloc_resource(used_res)
-        used_res.each { |r| @@available_resources << r[:assigned_to] }
-      end
+#      def build_job_cmd(job, res_req)
+#        opts = ""
+#        oml = ""
+#        # Dump Experiment Description in temp file
+#        s = Zlib::Inflate.inflate(Base64.decode64(job.oedl_script['content'].join("\n")))
+#        ed_file = "#{ED_PATH}/#{Digest::SHA1.hexdigest(s)}"
+#        f = File.open(ed_file,'w')
+#        f << s
+#        f.close
+#        # Set OML if required
+#        # TODO: Update and Uncomment the following OML setup to get the URI 
+#        # once the Job object is fixed.
+#        #unless job.oml_db.nil? || job.oml_db.empty?
+#        #  oml = "--oml_uri #{job.oml_db}"
+#        #end
+#        # Build experiment option line
+#        res_req.each do |e|
+#          opts = opts + "--#{e[:name]} #{e[:assigned_to]} "  
+#        end
+#        job.ec_properties.each do |e|
+#          opts = opts + "--#{e.name} #{e.value} " unless e.resource?
+#        end
+#        # Put together the command line and return
+#        cmd = "#{EC_PATH} -e #{job.name} #{oml} #{ed_file} -- #{opts}"
+#      end
 
-      def build_job_cmd(job, res_req)
-        opts = ""
-        oml = ""
-        # Dump Experiment Description in temp file
-        s = Zlib::Inflate.inflate(Base64.decode64(job.oedl_script['content'].join("\n")))
-        ed_file = "#{ED_PATH}/#{Digest::SHA1.hexdigest(s)}"
-        f = File.open(ed_file,'w')
-        f << s
-        f.close
-        # Set OML if required
-        # TODO: Update and Uncomment the following OML setup to get the URI 
-        # once the Job object is fixed.
-        #unless job.oml_db.nil? || job.oml_db.empty?
-        #  oml = "--oml_uri #{job.oml_db}"
-        #end
-        # Build experiment option line
-        res_req.each do |e|
-          opts = opts + "--#{e[:name]} #{e[:assigned_to]} "  
-        end
-        job.ec_properties.each do |e|
-          opts = opts + "--#{e.value["name"]} #{e.value["value"]} " if e.value["resource"].nil?
-        end
-        # Put together the command line and return
-        cmd = "#{EC_PATH} -e #{job.name} #{oml} #{ed_file} -- #{opts}"
-      end
-
-      # Below are commented lines from original skeleton file
-
-      # def schedule(res_properties, job)
-        # res_properties.each {|r| schedule_single(r, job)}
-      # end
-#
-      # def schedule_single(res_property, job)
-        # rd = res_property.resource_description
-        # unless type = rd[:type] || rd['type']
-          # raise "Missing resource type in '#{rd}'"
-        # end
-        # res = nil
-        # case type.to_sym
-        # when :node
-          # require 'omf-sfa/resource/node'
-          # res = OMF::SFA::Resource::Node.create(name: res_property.name)
-        # else
-          # raise "Unsupported resource type '#{type}'"
-        # end
-#
-        # unless res
-          # raise "Couldn't create resource '#{rd}'"
-        # end
-        # puts "RES>>> #{res}"
-        # res.job = job
-        # res.save
-        # res_property.resource = res
-        # res_property.save
-#
-      # end
     end
   end
 end

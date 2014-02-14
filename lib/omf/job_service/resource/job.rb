@@ -62,7 +62,7 @@ module OMF::JobService::Resource
       h
     end
 
-    def run()
+    def run(&post_run_block)
       script_file = Tempfile.new("ec_job_#{self.name}")
       s = Zlib::Inflate.inflate(Base64.decode64(self.oedl_script['content'].join("\n")))
       script_file.write(s)
@@ -83,8 +83,9 @@ module OMF::JobService::Resource
           self.exit_code = ex_c
           self.save
           script_file.unlink
+          post_run_block.call(self) if post_run_block
         end
-        #puts "EXEC: #{event}:#{event.class} - #{msg}"
+        puts "EXEC: #{event}:#{event.class} - #{msg}"
       end
       self.status = :running
       save
@@ -93,6 +94,20 @@ module OMF::JobService::Resource
     def oml_server
       @@oml_server
     end
+
+    def resource
+      self.ec_properties.map {|e| e if e.resource? }.compact
+    end
+
+   def assign_resource(name, res_name)
+     self.ec_properties.each do |e|
+       if e.resource? && e.name == name
+         e.resource_name = res_name
+         e.save
+       end
+     end
+     save
+   end
 
 
   end # classs

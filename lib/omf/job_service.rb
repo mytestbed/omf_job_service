@@ -29,6 +29,7 @@ module OMF
     def self.init(opts)
       require 'omf/job_service/scheduler/simple_scheduler'
       @@scheduler = Scheduler::SimpleScheduler.new
+      EM.next_tick { @@scheduler.start }
     end
   end
 end

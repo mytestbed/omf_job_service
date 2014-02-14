@@ -66,30 +66,33 @@ module OMF::JobService
       end
 
       def resource_name
-puts ">>> Reading up resource name on #{self.name} with ID: #{self.id} (obj id: #{self.object_id}"
+#puts ">>> Reading up resource name on #{self.name} with ID: #{self.id} (obj id: #{self.object_id}"
         rd = resource_description
         rd.nil? ? nil : rd[:name] || rd['name']
       end
 
       def resource_name=(name)
-puts ">>> Setting up resource name on #{self.name} with ID: #{self.id} (obj id: #{self.object_id}"
-        rd = resource_description
+#puts ">>> Setting up resource name on #{self.name} with ID: #{self.id} (obj id: #{self.object_id}"
+        rd = resource_description()
         rd.delete('name')
         rd[:name] = name
-        resource_description = rd
+        self.resource_description = rd
         save
       end
 
       def resource_type
         rd = resource_description
-        rd.nil? ? nil : rd[:type] || rd['type']
+        if rd.nil?
+          return nil
+        end
+        (rd[:type] || rd['type'] || 'unknown').to_s.downcase.to_sym
       end
 
       def resource_type=(type)
         rd = resource_description
         rd.delete('type')
         rd[:type] = type
-        resource_description = rd
+        self.resource_description = rd
       end
 
       def resource?
@@ -111,7 +114,7 @@ puts ">>> Setting up resource name on #{self.name} with ID: #{self.id} (obj id: 
       end
 
       def to_s
-        "<#{self.class}: name=#{self.name} value=#{self.value} rd=#{self.resource_description}>"
+        "<#{self.class}:#{self.object_id} n=#{self.name} r?: #{self._is_resource} v=#{Marshal.load(Base64.decode64(self._marshal))}>"
       end
 
       def self.json_create(state)

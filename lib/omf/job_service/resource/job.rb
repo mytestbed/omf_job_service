@@ -75,6 +75,7 @@ module OMF::JobService::Resource
       # Put together the command line and return
       cmd = "env -i #{EC_PATH} -e #{self.name} --oml_uri #{oml_server} #{script_file.path} -- #{opts.join(' ')}"
       debug "Executing '#{cmd}'"
+
       OMF::Base::ExecApp.new(self.name, cmd) do |event, id, msg|
         if event == 'EXIT'
           ex_c = msg.to_i
@@ -83,9 +84,9 @@ module OMF::JobService::Resource
           self.exit_code = ex_c
           self.save
           script_file.unlink
-          post_run_block.call(self) if post_run_block
+          post_run_block.call() if post_run_block
         end
-        puts "EXEC: #{event}:#{event.class} - #{msg}"
+        #puts "EXEC: #{event}:#{event.class} - #{msg}"
       end
       self.status = :running
       save
@@ -95,8 +96,8 @@ module OMF::JobService::Resource
       @@oml_server
     end
 
-    def resource
-      self.ec_properties.map {|e| e if e.resource? }.compact
+    def resources
+      self.ec_properties.select {|e| e.resource? }
     end
 
    def assign_resource(name, res_name)

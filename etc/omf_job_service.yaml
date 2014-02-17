@@ -6,6 +6,7 @@ job_service:
   jobs:
     oml_server: tcp:localhost:3004
     db_server: 'postgres://localhost'
+    log_file_dir: '/tmp'
 
   scheduler:
     require: 'omf/job_service/resource/job'

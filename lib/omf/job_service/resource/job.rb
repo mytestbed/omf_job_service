@@ -15,9 +15,12 @@ module OMF::JobService::Resource
     DEF_OML_SERVER = 'tcp:localhost:3004'
     DEF_DB_SERVER = 'postgres://oml:oml_nictaNPC@srv.mytestbed.net'
 
+    @@log_file_dir = nil # If set, write all logging output into a file there
+
     def self.init(cfg)
       @@oml_server = cfg[:oml_server] || DEF_OML_SERVER
       @@db_server_prefix = cfg[:db_server] || DEF_DB_SERVER
+      @@log_file_dir = cfg[:log_file_dir]
     end
 
 
@@ -29,6 +32,7 @@ module OMF::JobService::Resource
     oproperty :ec_properties, Object, functional: false, set_filter: :filter_ec_property
     oproperty :oml_db, String
     #oproperty :start_time, Date
+    oproperty :requested_time, Time
     oproperty :start_time, Time
     oproperty :end_time, Time
     oproperty :exit_code, Integer
@@ -39,10 +43,8 @@ module OMF::JobService::Resource
       super
       self.creation = Time.now
       self.status = :pending
-      # TODO: Make this configurable
       self.oml_db = "#{@@db_server_prefix}/#{self.name}"
-
-      #EM.next_tick { run }
+      self.requested_time = Time.now
     end
 
     def filter_ec_property(val)
@@ -80,8 +82,18 @@ module OMF::JobService::Resource
       # Put together the command line and return
       cmd = "env -i #{EC_PATH} -e #{self.name} --oml_uri #{oml_server} #{script_file.path} -- #{opts.join(' ')}"
       debug "Executing '#{cmd}'"
+      @log_file = nil
+      if @@log_file_dir
+        @log_file = File.new("#{@@log_file_dir}/#{self.name}.log", 'w')
+      end
       self.start_time = Time.now
       OMF::Base::ExecApp.new(self.name, cmd) do |event, id, msg|
+        if (@log_file)
+          @log_file.write("#{event}: #{msg}")
+          @log_file.flush # for debugging we want this quickly
+        else
+          debug "ec:#{self.name} #{event}: #{msg}"
+        end
         if event == 'EXIT'
           ex_c = msg.to_i
           debug "Experiment '#{self.name}' finished with exit code '#{ex_c}'"
@@ -91,8 +103,8 @@ module OMF::JobService::Resource
           self.save
           script_file.unlink
           post_run_block.call() if post_run_block
+          @log_file.close if @log_file
         end
-        #puts "EXEC: #{event}:#{event.class} - #{msg}"
       end
       self.status = :running
       save

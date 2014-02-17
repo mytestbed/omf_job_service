@@ -101,13 +101,14 @@ module OMF::JobService
 
       def to_hash()
         h = {name: self.name}
-        if rd = self.resource_description
-          h[:resource] = rd
+        if resource?
+          h[:resource] = self.resource_description
         else
           h[:value] = self.value
         end
         h
       end
+
       # Serialisation
       def to_json(*args)
         to_hash().to_json(*args)

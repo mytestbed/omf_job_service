@@ -1,0 +1,86 @@
+# Simple SHM Experiment 
+
+# Note: right now da and dp-heuro always expect a config file even though it is empty
+# this is a known limitation, which Serge will fix soon.
+#
+
+defProperty('one_node', "test1", "ID of a node")
+
+defApplication('da') do |a|
+  a.binary_path = "/sbin/da"
+  a.description = "SHM Data Acquisition Application"
+  a.defProperty("config", "Path to the config file", nil, {:order =>1, :type => :string, :mandatory => true, :default => "/etc/shm/empty_config.txt"})
+  a.defProperty("sampling_rate", "sampling rate, Hz. Max allowed (not granted) is 10000", '--rate', {:type => :numeric})
+  a.defProperty("sensor_mask", "Set bits in the HEX value enable coresponding accelerometers", "--sensorMask", {:type => :string})
+  a.defProperty("range", "Acceleration range word, as in accelerometer (BM-150) datasheet", "--rangeWord", {:type => :numeric})
+  a.defProperty("bandwitdth", "Accelerometer filter bandwidth word, as in accelerometer (BM-150) datasheet", "--bandwidthWord", {:type => :numeric})
+end
+
+defApplication('dp-heuro') do |a|
+  a.binary_path = "/sbin/dp-heuro"
+  a.description = "SHM Data Processing running the Health Score Heuristic"
+  a.defProperty("config", "Path to the config file", nil, {:order =>1, :type => :string, :mandatory => true, :default => "/etc/shm/empty_config.txt"})
+  a.defProperty("threshold", "Threshold for event detection", "--threshold", {:type => :numeric})
+  a.defProperty("lower_limit", "Lower limit value for K-factor computation", "--lowerLimit", {:type => :numeric})
+  a.defProperty("upper_limit", "Upper limit value for K-factor computation", "--upperLimit", {:type => :numeric})
+  a.defProperty("number_highest", "Number of highest peak for Heuristic computation", "--numHighest", {:type => :numeric})
+  a.defProperty("event_period", "Sleep period before starting detection of the next event", "--eventPeriod", {:type => :numeric})
+  a.defProperty("output", "Local filename to store DP results if needed", "--outputFile", {:type => :string})
+
+  # For this simple example, the following MP definitions are
+  # omitting the field descriptions.
+  a.defMeasurement("raw_sensor_info") 
+  a.defMeasurement("pair_info") 
+  a.defMeasurement("sensor_info") 
+  a.defMeasurement("joint_info") 
+end
+
+defGroup("Data_Producer", property.one_node) do |node|
+  node.addApplication("da") do |app|
+    app.setProperty("sampling_rate", 250)
+    app.setProperty("sensor_mask", "e")
+    app.setProperty("range", 0)
+    app.setProperty("bandwitdth", 2)
+  end
+end
+
+defGroup("Heuristic_Calculator", property.one_node) do |node|
+  node.addApplication("dp-heuro") do |app|
+    app.setProperty("threshold", 15)
+    app.setProperty("lower_limit", 5)
+    app.setProperty("upper_limit", 20)
+    app.setProperty("number_highest", 30)
+    app.setProperty("event_period", 10)
+    app.setProperty("output", "/tmp/shm_experiment.data")
+
+    app.measure('raw_sensor_info', samples: 1)
+    app.measure('pair_info', samples: 1)
+    app.measure('sensor_info', samples: 1)
+    app.measure('joint_info', samples: 1)
+  end
+end
+
+onEvent(:ALL_UP_AND_INSTALLED) do |event|
+  info "Starting a data acquisition"
+  group("Data_Producer").startApplications
+
+  after 10 do
+    info "Starting a heuristic calculation"
+    group("Heuristic_Calculator").startApplications
+  end
+
+  after 60 do
+    info "Stopping all applications."
+    allGroups.stopApplications
+    Experiment.done
+  end
+end
+
+defGraph 'Health Score' do |g|
+  g.ms('joint_info').select {[ oml_ts_client.as(:ts), :health ]}
+  g.caption "Computed Health Score"
+  g.type 'line_chart3'
+  g.mapping :x_axis => :ts, :y_axis => :value
+  g.xaxis :legend => 'time [s]'
+  g.yaxis :legend => 'Health Score', :ticks => {:format => 's'}
+end

@@ -17,7 +17,7 @@ end
 
 defGroup('Generator', property.res1) do |node|
   node.addApplication("generator") do |app|
-    app.measure('sin', sample: 1)
+    app.measure('sin', samples: 1)
   end
 end
 

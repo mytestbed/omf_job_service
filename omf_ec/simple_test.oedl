@@ -13,7 +13,7 @@ onEvent(:ALL_UP) do |event|
   # 'after' is not blocking. This executes 6 seconds after :ALL_UP fired.  
   after 6 do
     info "TEST - group"
-    group("Actor").exec("/bin/hostname -f")
+    group("Actor").exec("/bin/hostname")
   end
   # 'after' is not blocking. This executes 9 seconds after :ALL_UP fired.  
   after 9 do

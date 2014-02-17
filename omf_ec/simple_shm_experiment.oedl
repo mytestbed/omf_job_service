@@ -1,11 +1,19 @@
 # Simple SHM Experiment 
 
-# Note: right now da and dp-heuro always expect a config file even though it is empty
-# this is a known limitation, which Serge will fix soon.
-#
+# Note: right now da and dp-heuro always expect a config file even though it 
+# is empty this is a known limitation, which Serge will fix soon.
 
-defProperty('one_node', "test1", "ID of a node")
+# Define some parameters (or properties), which can be configured before
+# running the experiment
+defProperty('one_node', "00121", "ID of a node")
+defProperty('duration', 60, "Experiment Duration")
+defProperty('data_rate', 250, "Data acquisition sampling rate")
+defProperty('data_range', 0, "Data acquisition range")
+defProperty('heuro_period', 10, "Heuristic Algo period between events")
+defProperty('heuro_threshold', 15, "Heuristic Algo event threshold")
 
+# Define the application 'da' i.e. the Data Acquisition module
+# This could be done in an external file
 defApplication('da') do |a|
   a.binary_path = "/sbin/da"
   a.description = "SHM Data Acquisition Application"
@@ -16,7 +24,9 @@ defApplication('da') do |a|
   a.defProperty("bandwitdth", "Accelerometer filter bandwidth word, as in accelerometer (BM-150) datasheet", "--bandwidthWord", {:type => :numeric})
 end
 
-defApplication('dp-heuro') do |a|
+# Define the application 'dp heuro' i.e. the Data Processing Heuristic module
+# This could be done in an external file
+defApplication('shm') do |a|
   a.binary_path = "/sbin/dp-heuro"
   a.description = "SHM Data Processing running the Health Score Heuristic"
   a.defProperty("config", "Path to the config file", nil, {:order =>1, :type => :string, :mandatory => true, :default => "/etc/shm/empty_config.txt"})
@@ -29,38 +39,44 @@ defApplication('dp-heuro') do |a|
 
   # For this simple example, the following MP definitions are
   # omitting the field descriptions.
-  a.defMeasurement("raw_sensor_info") 
-  a.defMeasurement("pair_info") 
-  a.defMeasurement("sensor_info") 
-  a.defMeasurement("joint_info") 
+  a.defMeasurement("raw_sensor_info")
+  a.defMeasurement("pair_info")
+  a.defMeasurement("sensor_info")
+  a.defMeasurement("joint_info")
 end
 
+# Define a group of node which will run the Data Acquisition module
 defGroup("Data_Producer", property.one_node) do |node|
   node.addApplication("da") do |app|
-    app.setProperty("sampling_rate", 250)
+    # Set parameters to run the data acquisition with
+    app.setProperty("sampling_rate", prop.data_rate)
     app.setProperty("sensor_mask", "e")
-    app.setProperty("range", 0)
+    app.setProperty("range", prop.data_range)
     app.setProperty("bandwitdth", 2)
   end
 end
 
+# Define a group of node which will run the Data Processing module
 defGroup("Heuristic_Calculator", property.one_node) do |node|
-  node.addApplication("dp-heuro") do |app|
-    app.setProperty("threshold", 15)
+  node.addApplication("shm") do |app|
+    # Set parameters to run the data processing with
+    app.setProperty("threshold", prop.heuro_threshold)
     app.setProperty("lower_limit", 5)
     app.setProperty("upper_limit", 20)
     app.setProperty("number_highest", 30)
-    app.setProperty("event_period", 10)
+    app.setProperty("event_period", prop.heuro_period)
     app.setProperty("output", "/tmp/shm_experiment.data")
-
-    app.measure('raw_sensor_info', samples: 1)
-    app.measure('pair_info', samples: 1)
-    app.measure('sensor_info', samples: 1)
-    app.measure('joint_info', samples: 1)
+    # Enable OML measurements
+    app.measure('raw_sensor_info', :samples => 1)
+    app.measure('pair_info', :samples => 1)
+    app.measure('sensor_info', :samples => 1)
+    app.measure('joint_info', :samples => 1)
   end
 end
 
+# Define what should be done in this experiment
 onEvent(:ALL_UP_AND_INSTALLED) do |event|
+
   info "Starting a data acquisition"
   group("Data_Producer").startApplications
 
@@ -69,18 +85,29 @@ onEvent(:ALL_UP_AND_INSTALLED) do |event|
     group("Heuristic_Calculator").startApplications
   end
 
-  after 60 do
+  after prop.duration do
     info "Stopping all applications."
     allGroups.stopApplications
     Experiment.done
   end
 end
 
+# Define a simple graph to draw for this experiment.
 defGraph 'Health Score' do |g|
-  g.ms('joint_info').select {[ oml_ts_client.as(:ts), :health ]}
+  g.ms('joint_info').select {[ :oml_ts_client, :health ]}
   g.caption "Computed Health Score"
   g.type 'line_chart3'
-  g.mapping :x_axis => :ts, :y_axis => :value
+  g.mapping :x_axis => :oml_ts_client, :y_axis => :health
   g.xaxis :legend => 'time [s]'
   g.yaxis :legend => 'Health Score', :ticks => {:format => 's'}
+end
+
+# Define a simple graph to draw for this experiment.
+defGraph 'Raw Data' do |g|
+  g.ms('raw_sensor_info').select {[ :oml_seq, :sensor_id, :v1 ]}
+  g.caption "Raw Sensor Data"
+  g.type 'line_chart3'
+  g.mapping :x_axis => :oml_seq, :y_axis => :v1, :group_by => :sensor_id
+  g.xaxis :legend => 'Sample ID'
+  g.yaxis :legend => 'V1 value', :ticks => {:format => 's'}
 end

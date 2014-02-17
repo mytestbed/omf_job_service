@@ -22,18 +22,25 @@ module OMF::JobService
     def show_resource_list(opts)
       # authenticator = Thread.current["authenticator"]
       q = {}
+      qopts = {}
       opts[:req].params.each do |k, v|
         case k
         when 'pending'
           q[:status] = 'pending'
-        when 'active'
-          q[:status] = 'active'
+        when 'running'
+          q[:status] = 'running'
+        when 'pat'
+          q[:name] = "%#{v}%"
+        when 'limit'
+          qopts[:limit] = v
+        when 'offset'
+          qopts[:offset] = v
         else
           warn "Unknown selector '#{k}' for Job list"
         end
       end
-      debug "Job list selectors '#{q}'"
-      resources = OMF::JobService::Resource::Job.prop_all(q)
+      debug "Job list selectors '#{q}' - opts: #{qopts}"
+      resources = OMF::JobService::Resource::Job.prop_all(q, qopts)
 
       #resources = @resource_class.all()
       show_resources(resources, nil, opts)

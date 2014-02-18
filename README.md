@@ -41,10 +41,10 @@ following the instructions in the [README](omf_ec/README.md) in that directory.
 Starting the Service
 --------------------
 
-To start a project authority with a some pre-populated resources ('--test-load-state') from this directory, run the following:
+To start a job service from this directory, run the following:
 
     cd omf_job_service
-    bin/omf_job_service --test-load-state --dm-auto-upgrade --disable-https start
+    bin/omf_job_service --dm-auto-upgrade --disable-https start
 
 which should result in something like:
 

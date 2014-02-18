@@ -23,6 +23,10 @@ module OMF::JobService::Resource
       @@log_file_dir = cfg[:log_file_dir]
     end
 
+    def self.log_file_dir
+      @@log_file_dir
+    end
+
 
     oproperty :creation, DataMapper::Property::Time
     oproperty :description, String
@@ -35,8 +39,9 @@ module OMF::JobService::Resource
     oproperty :requested_time, Time
     oproperty :start_time, Time
     oproperty :end_time, Time
+    oproperty :pid, Integer
     oproperty :exit_code, Integer
-    oproperty :status, String
+    oproperty :status, String, set_filter: :filter_status
     oproperty :user, :user, inverse: :jobs
 
     def initialize(opts)
@@ -62,14 +67,46 @@ module OMF::JobService::Resource
       val
     end
 
+    def filter_status(val)
+      #puts "STATUS: #{val}:#{val.class} - #{self.status}:#{status.class}"
+      if val == 'aborted'
+        status = self.status
+        unless ['pending', 'running'].include? status
+          return nil # Nothing to abort anymore
+        end
+        if pid = self.pid
+            EM.next_tick { Process.kill("TERM", -1 * self.pid) }
+        end
+        'aborted'
+      end
+      val
+    end
+
+    def abort_job
+    end
+
     def to_hash_brief(opts = {})
       h = super
       h[:status] = self.status
       h[:oml_db] = self.oml_db
+
+      if fn = log_file_name()
+        if File.readable?(fn)
+          # TODO This is no the cleanest solution, but it works
+          h[:log_file] = "#{"http://#{Thread.current[:http_host]}"}/logs/#{File.basename(log_file_name, '.log')}"
+        end
+      end
       h
     end
 
+    def log_file_name
+      return nil unless @@log_file_dir
+      "#{@@log_file_dir}/#{self.name}.log"
+    end
+
     def run(&post_run_block)
+      return unless self.status == 'pending'
+
       script_file = Tempfile.new("ec_job_#{self.name}")
       s = Zlib::Inflate.inflate(Base64.decode64(self.oedl_script['content'].join("\n")))
       script_file.write(s)
@@ -82,30 +119,32 @@ module OMF::JobService::Resource
       # Put together the command line and return
       cmd = "env -i #{EC_PATH} -e #{self.name} --oml_uri #{oml_server} #{script_file.path} -- #{opts.join(' ')}"
       debug "Executing '#{cmd}'"
-      @log_file = nil
-      if @@log_file_dir
-        @log_file = File.new("#{@@log_file_dir}/#{self.name}.log", 'w')
-      end
+      log_file_name = log_file_name()
+      log_file = log_file_name ? File.new(log_file_name, 'w') : nil
       self.start_time = Time.now
-      OMF::Base::ExecApp.new(self.name, cmd) do |event, id, msg|
-        if (@log_file)
-          @log_file.write("#{event}: #{msg}")
-          @log_file.flush # for debugging we want this quickly
+      app = OMF::Base::ExecApp.new(self.name, cmd) do |event, id, msg|
+        if log_file
+          log_file.puts("#{event}: #{msg}")
+          log_file.flush # for debugging we want this quickly
         else
           debug "ec:#{self.name} #{event}: #{msg}"
         end
         if event == 'EXIT'
+          self.reload # could be out of date by now
           ex_c = msg.to_i
-          debug "Experiment '#{self.name}' finished with exit code '#{ex_c}'"
-          self.status = (ex_c == 0) ? :finished : :failed
+          debug "Experiment '#{self.name}' finished with exit code '#{ex_c}' - #{self.status}"
+          unless self.status == 'aborted'
+            self.status = (ex_c == 0) ? :finished : :failed
+          end
           self.exit_code = ex_c
           self.end_time = Time.now
           self.save
           script_file.unlink
           post_run_block.call() if post_run_block
-          @log_file.close if @log_file
+          log_file.close if log_file
         end
       end
+      self.pid = app.pid
       self.status = :running
       save
     end
@@ -127,6 +166,7 @@ module OMF::JobService::Resource
      end
      save
    end
+
 
 
   end # classs

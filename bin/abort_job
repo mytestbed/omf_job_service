@@ -1,0 +1,53 @@
+#!/usr/bin/env ruby
+
+# $0 url
+
+require 'optparse'
+require 'net/http'
+require "json"
+
+$verbose = false
+
+name = nil
+uri = URI.parse('http://localhost:8002/jobs')
+
+optparse = OptionParser.new do |opts|
+  opts.banner = "Usage: #{$0} job_url"
+
+  opts.on('-v', '--verbose', "Print more information about what's going on. [#{$verbose}]" ) do |url|
+    $verbose = true
+  end
+  opts.on( '-h', '--help', 'Display this screen' ) do
+    puts opts
+    exit
+  end
+end
+optparse.parse!
+
+# Next argument should be script file
+unless ARGV.length >= 1
+  puts "ERROR: Missing script file\n"
+  puts optparse
+  abort
+end
+uri = URI.parse(ARGV.shift)
+
+
+request = {
+  status: 'aborted'
+}
+
+# OK, time ot post it
+if $verbose
+  puts "Sending the following request to '#{url}'"
+  puts JSON.pretty_generate(request)
+end
+
+req = Net::HTTP::Post.new(uri.path, {'Content-Type' =>'application/json'})
+#req.basic_auth @user, @pass
+req.body = JSON.pretty_generate(request)
+response = Net::HTTP.new(uri.host, uri.port).start {|http| http.request(req) }
+puts "Response #{response.code} #{response.message}:\n#{response.body}"
+
+
+

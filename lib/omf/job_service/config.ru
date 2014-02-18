@@ -52,6 +52,19 @@ map '/resources' do
   run opts[:resource_handler] || OMF::JobService::ResourceHandler.new(opts)
 end
 
+require 'omf/job_service/resource/job'
+log_dir = OMF::JobService::Resource::Job.log_file_dir
+map '/logs' do
+  if log_dir
+    run MyFile.new(log_dir)
+  else
+    run do
+      [401 ,{'Content-Type' => 'text'}, "Log files are not configured for this instance"]
+    end
+  end
+end
+
+
 if REQUIRE_LOGIN
   map '/login' do
     require 'omf-sfa/am/am-rest/login_handler'

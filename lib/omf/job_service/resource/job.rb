@@ -93,7 +93,7 @@ module OMF::JobService::Resource
       if fn = log_file_name()
         if File.readable?(fn)
           # TODO This is no the cleanest solution, but it works
-          h[:log_file] = "#{"http://#{Thread.current[:http_host]}"}/logs/#{File.basename(log_file_name, '.log')}"
+          h[:log_file] = "#{"http://#{Thread.current[:http_host]}"}/logs/#{File.basename(log_file_name)}"
         end
       end
       h
@@ -101,7 +101,7 @@ module OMF::JobService::Resource
 
     def log_file_name
       return nil unless @@log_file_dir
-      "#{@@log_file_dir}/#{self.name}.log"
+      "#{@@log_file_dir}/#{self.uuid}.log"
     end
 
     def run(&post_run_block)

@@ -58,7 +58,7 @@ map '/logs' do
   if log_dir
     run MyFile.new(log_dir)
   else
-    run do
+    run do |env|
       [401 ,{'Content-Type' => 'text'}, "Log files are not configured for this instance"]
     end
   end

@@ -8,5 +8,6 @@ def override_with_local(local_dir)
   Dir.exist?(local_dir) ? {path: local_dir} : {}
 end
 
+gem 'systemu'
 gem 'omf_base', override_with_local('../omf_base')
 gem 'omf_sfa', override_with_local('../omf_sfa')

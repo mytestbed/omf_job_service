@@ -1,0 +1,13 @@
+#!/bin/bash
+
+HOME=%HOME%
+RUBY=%RUBY%
+GEMSET=%GEMSET%
+
+export HOME
+export GEM_HOME=${HOME}/.rvm/gems/${RUBY}
+export GEM_PATH=${HOME}/.rvm/gems/${RUBY}:${HOME}/.rvm/gems/${RUBY}@${GEMSET}
+export PATH=${HOME}/.rvm/gems/${RUBY}/bin:${HOME}/.rvm/gems/${RUBY}@${GEMSET}/bin:${HOME}/.rvm/rubies/${RUBY}/bin:${HOME}/.rvm/bin:${PATH}
+
+cd "$( dirname "${BASH_SOURCE[0]}" )"
+exec bundle exec ruby ../lib/omf/job_service/runner.rb $*

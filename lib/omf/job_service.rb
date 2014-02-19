@@ -1,5 +1,4 @@
 
-
 module OMF
   module JobService
     DEF_OPTS = {
@@ -50,11 +49,4 @@ module OMF
 end
 
 
-if __FILE__ == $0
-  # Run the service
-  #
-  require 'omf/job_service/server'
 
-  OMF::JobService::Server.new.run()
-
-end

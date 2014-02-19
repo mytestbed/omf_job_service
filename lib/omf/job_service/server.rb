@@ -1,18 +1,10 @@
-# require 'rubygems'
-# require 'json/jwt'
 require 'json'
 
-# require 'rack'
-# require 'rack/showexceptions'
-# require 'thin'
 require 'data_mapper'
 require 'omf_base/lobject'
 require 'omf_base/load_yaml'
 
 require 'omf-sfa/am/am_runner'
-#require 'omf-sfa/am/am_manager'
-#require 'omf-sfa/am/am_scheduler'
-
 require 'omf/job_service'
 
 module OMF::JobService
@@ -43,7 +35,6 @@ module OMF::JobService
 
     def init_authorization(opts)
       return # TODO: What should happen below?
-
 
       require 'json/jwt'
       require 'omf_common'
@@ -142,7 +133,3 @@ module OMF::JobService
     end
   end # class
 end # module
-
-
-
-

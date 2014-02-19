@@ -34,6 +34,7 @@ On Ubuntu 12.04 LTS you will also need to install the following package:
 Now we are ready to install all the necessary Gems
 
     bundle install --path vendor
+    rake post-install
 
 Before starting the service, please also install tan OMF EC in the 'omf_ec' directoy
 following the instructions in the [README](omf_ec/README.md) in that directory.

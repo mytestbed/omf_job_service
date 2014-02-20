@@ -1,6 +1,6 @@
 source "https://rubygems.org"
 
-gem 'omf_rc', "~> 6.0.8.pre"
+gem 'omf_rc', "~> 6.1.0"
 gem 'amqp'
 gem 'json-jwt'
 gem 'oml4r'

@@ -42,6 +42,7 @@ module OMF::JobService::Resource
     oproperty :pid, Integer
     oproperty :exit_code, Integer
     oproperty :status, String, set_filter: :filter_status
+    oproperty :message, String
     oproperty :user, :user, inverse: :jobs
 
     def initialize(opts)
@@ -107,6 +108,14 @@ module OMF::JobService::Resource
     def run(&post_run_block)
       return unless self.status == 'pending'
 
+      if self.oedl_script.nil? || self.oedl_script['content'].empty? || self.oedl_script['content'].nil?
+        msg = "Cannot run experiment '#{self.name}', there is no OEDL script associated to this job."
+        warn msg
+        self.status = :failed
+        self.message = msg
+        save
+        return
+      end
       script_file = Tempfile.new("ec_job_#{self.name}")
       s = Zlib::Inflate.inflate(Base64.decode64(self.oedl_script['content'].join("\n")))
       script_file.write(s)

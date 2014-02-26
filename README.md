@@ -45,10 +45,12 @@ Starting the Service
 To start a job service from this directory, run the following:
 
     cd omf_job_service
-    bin/omf_job_service --dm-auto-upgrade --disable-https start
+    rake run
 
 which should result in something like:
 
+    DEBUG Server: Options: {:dm_log=>"/tmp/job_service_test-dm.log", :dm_db=>"sqlite:///tmp/job_service_test.db", ....
+    DEBUG SimpleScheduler: Available resource: ["test1"]
     INFO Server: >> Thin web server (v1.3.1 codename Triple Espresso)
     DEBUG Server: >> Debugging ON
     DEBUG Server: >> Tracing ON

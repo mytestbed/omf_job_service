@@ -19,13 +19,22 @@ task :start, :config do |t, args|
   system('/usr/bin/env bundle exec god start job_service')
 end
 
+desc "Stop the Job Service Daemon"
 task :stop do |t, args|
   system('/usr/bin/env bundle exec god stop job_service')
 end
 
-task :status, :config do |t, args|
+desc "Print the status of the Job Service daemon"
+task :status do |t, args|
   system('/usr/bin/env bundle exec god status job_service')
 end
+
+desc "Run the Job Service in this shell"
+task :run do |t, args|
+  system("#{TOP_DIR}/bin/omf_job_service start")
+end
+
+
 
 desc "Call after 'bundle install --path vendor'"
 task 'post-install', [:frcp_url] => [:create_server_bin]

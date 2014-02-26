@@ -1,12 +1,13 @@
 #!/bin/bash
 
 HOME=%HOME%
+RVM_HOME=%RVM_HOME%
 RUBY=%RUBY%
 GEMSET=%GEMSET%
 
 export HOME
-export GEM_HOME=${HOME}/.rvm/gems/${RUBY}
-export GEM_PATH=${HOME}/.rvm/gems/${RUBY}:${HOME}/.rvm/gems/${RUBY}@${GEMSET}
-export PATH=${HOME}/.rvm/gems/${RUBY}/bin:${HOME}/.rvm/gems/${RUBY}@${GEMSET}/bin:${HOME}/.rvm/rubies/${RUBY}/bin:${HOME}/.rvm/bin:${PATH}
+export GEM_HOME=${RVM_HOME}/gems/${RUBY}
+export GEM_PATH=${RVM_HOME}/gems/${RUBY}:${RVM_HOME}/gems/${RUBY}@${GEMSET}
+export PATH=${RVM_HOME}/gems/${RUBY}/bin:${RVM_HOME}/gems/${RUBY}@${GEMSET}/bin:${RVM_HOME}/rubies/${RUBY}/bin:${RVM_HOME}/bin:${PATH}
 
 bundle exec ruby $*

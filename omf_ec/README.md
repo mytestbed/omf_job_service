@@ -4,6 +4,14 @@ This directory will contain a working OMF EC configured
 Installation
 ------------
 
+Before starting, make sure the following libraries are installed. On Debian systems, the following should suffice:
+
+    apt-get install libpq-dev
+    apt-get install libxml2-dev
+    apt-get install libxslt
+
+The install the GEMS and local modifications
+
     bundle install --path vendor
     export FRCP_URL=amqp://localhost # or your favorite FRCP comms provider
     rake post-install

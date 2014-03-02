@@ -12,6 +12,14 @@ job_service:
     db_server: 'postgres://localhost'
     log_file_dir: '/tmp'
 
+  users:
+    credendials_dir: '/tmp/job_service/slices/credentials'
+
+  slices:
+    aggregates: [
+      'https://fiu-hn.exogeni.net:11443/orca/xmlrpc'
+    ]
+
   scheduler:
     require: 'omf/job_service/resource/job'
     class: 'OMF::JobService::Scheduler::SimpleScheduler'

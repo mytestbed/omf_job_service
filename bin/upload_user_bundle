@@ -1,0 +1,67 @@
+#!/usr/bin/env ruby
+
+# $0 url
+
+require "zlib"
+require "json"
+require 'optparse'
+require 'base64'
+require 'net/http'
+
+$verbose = false
+
+name = nil
+uri = URI.parse('http://localhost:8002/users')
+
+optparse = OptionParser.new do |opts|
+  opts.banner = "Usage: #{$0} -u job_url bundle_file"
+
+  opts.on('-u', '--user-service-url', "URL of job service. [#{uri}]" ) do |_uri|
+    uri = _uri
+  end
+
+  opts.on('-v', '--verbose', "Print more information about what's going on. [#{$verbose}]" ) do |url|
+    $verbose = true
+  end
+  opts.on( '-h', '--help', 'Display this screen' ) do
+    puts opts
+    exit
+  end
+end
+optparse.parse!
+
+# Next argument should be script file
+unless ARGV.length >= 1
+  puts "ERROR: Missing user bundle\n"
+  puts optparse
+  abort
+end
+fname = ARGV.shift
+unless File.readable?(fname)
+  puts "ERROR: Can't read bundle file '#{fname}'"
+  abort
+end
+bc = Base64.encode64(Zlib::Deflate.deflate(File.read(fname)))
+request = {
+  bundle: {
+    type: "application/zip",
+    encoding: "base64",
+    content: bc.split("\n")
+  }
+}
+
+
+# OK, time ot post it
+if $verbose
+  puts "Sending the following request to '#{url}'"
+  puts JSON.pretty_generate(request)
+end
+
+req = Net::HTTP::Post.new(uri.path, {'Content-Type' =>'application/json'})
+#req.basic_auth @user, @pass
+req.body = JSON.pretty_generate(request)
+response = Net::HTTP.new(uri.host, uri.port).start {|http| http.request(req) }
+puts "Response #{response.code} #{response.message}:\n#{response.body}"
+
+
+

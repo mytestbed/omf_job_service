@@ -34,6 +34,13 @@ module OMF
         require 'omf/job_service/resource/job'
         Resource::Job.init(jcfg)
       end
+
+      require 'omf/job_service/resource/user'
+      Resource::User.init(opts.delete(:users) || {})
+
+      require 'omf/job_service/resource/slice'
+      Resource::Slice.init(opts.delete(:slices) || {})
+
       scfg = opts.delete(:scheduler) || {}
       klass = scfg.delete(:class)
       requ = scfg.delete(:require)

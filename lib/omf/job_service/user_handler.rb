@@ -1,6 +1,7 @@
 
 require 'omf-sfa/am/am-rest/rest_handler'
-require 'omf/job_service/resource'
+require 'omf/job_service/resource/user'
+
 #require 'omf/project_authority/user_member_handler'
 
 module OMF::JobService
@@ -23,5 +24,12 @@ module OMF::JobService
       }
     end
 
+    def create_resource(description, opts, resource_uri)
+      unless bundle = description[:bundle]
+        return super
+      end
+      OMF::JobService::Resource::User.from_bundle(bundle)
+      #puts ">>>>> descr: #{description} opts: #{opts} resource_uri: #{resource_uri}"
+    end
   end
 end

@@ -89,8 +89,8 @@ module OMF::JobService
       config = OMF::Base::YAML.load(f, :path => [d])[:job_service]
 
       defaults = o.delete(:defaults) || {}
-      opts = defaults.merge(o)
-      opts = config.merge(opts)
+      opts = config.merge(o)
+      opts = defaults.merge(opts)
       opts
     end
 
@@ -115,6 +115,7 @@ module OMF::JobService
         :pre_run => lambda do |o|
           o = read_config_file(o)
           init_logger(o)
+          debug "Options: #{o}"
           init_data_mapper(o)
           init_authorization(o)
           OMF::JobService.init(o)

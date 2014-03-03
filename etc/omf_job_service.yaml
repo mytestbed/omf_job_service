@@ -1,16 +1,1 @@
-job_service:
-
-  dm_auto_upgrade: true
-  disable_https: true
-
-  jobs:
-    oml_server: tcp:localhost:3004
-    #db_server: 'postgres://user:password@localhost'
-    db_server: 'postgres://localhost'
-    log_file_dir: '/tmp'
-
-  scheduler:
-    require: 'omf/job_service/resource/job'
-    class: 'OMF::JobService::Scheduler::SimpleScheduler'
-    # simple scheduler specific
-    resources: ['test1']
+omf_job_service-local.yaml

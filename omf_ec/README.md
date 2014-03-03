@@ -4,6 +4,14 @@ This directory will contain a working OMF EC configured
 Installation
 ------------
 
+Before starting, make sure the following libraries are installed. On Debian systems, the following should suffice:
+
+    apt-get install libpq-dev
+    apt-get install libxml2-dev
+    apt-get install libxslt
+
+The install the GEMS and local modifications
+
     bundle install --path vendor
     export FRCP_URL=amqp://localhost # or your favorite FRCP comms provider
     rake post-install
@@ -32,4 +40,8 @@ in the '../test/omf_rc' directory for standing up a local RC
 To test if the OML environment is setup correctly as well, use
 
     export OML_SERVER=tcp:srv.mytestbed.net:3004
-    ./omf_ec --oml_uri $OML_SERVER simple_oml_test.oedl
+    ./omf_ec --oml_uri $OML_SERVER simple_oml_test.oedl -- --res1 test1
+
+Note: the above simple oml example [simple_oml_test.oedl](./simple_oml_test.oedl)
+assumes that there exists a resource identified as `test1`, which has an
+application called `generator.rb` installed.

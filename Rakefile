@@ -1,6 +1,6 @@
 
 # Bundler is messing with that later on
-GEM_PATH = ENV['GEM_PATH']
+GEM_PATH = ENV['_ORIGINAL_GEM_PATH']
 
 # Setup bundler environment
 TOP_DIR = File.dirname(File.symlink?(__FILE__) ? File.readlink(__FILE__) : __FILE__)
@@ -19,13 +19,22 @@ task :start, :config do |t, args|
   system('/usr/bin/env bundle exec god start job_service')
 end
 
+desc "Stop the Job Service Daemon"
 task :stop do |t, args|
   system('/usr/bin/env bundle exec god stop job_service')
 end
 
-task :status, :config do |t, args|
+desc "Print the status of the Job Service daemon"
+task :status do |t, args|
   system('/usr/bin/env bundle exec god status job_service')
 end
+
+desc "Run the Job Service in this shell"
+task :run do |t, args|
+  system("#{TOP_DIR}/bin/omf_job_service start")
+end
+
+
 
 desc "Call after 'bundle install --path vendor'"
 task 'post-install', [:frcp_url] => [:create_server_bin]
@@ -38,15 +47,10 @@ task 'create_server_bin' do
   tmpl = File.read("#{target}.in")
 
   home = ENV['HOME']
-  p home
-  gp = ENV['GEM_PATH']
-  #p ENV['GEM_HOME']
-  #p ENV.keys
-  #p gp
-
+  rvm_home = ENV["rvm_bin_path"].match(/.*rvm/)[0]
   d, ruby, gemset = GEM_PATH.match(/.*(ruby.*)@(.*)/).to_a
 
-  s = tmpl.gsub('%HOME%', home).gsub('%RUBY%', ruby).gsub('%GEMSET%', gemset)
+  s = tmpl.gsub('%HOME%', home).gsub('%RVM_HOME%', rvm_home).gsub('%RUBY%', ruby).gsub('%GEMSET%', gemset)
   File.open(target, 'w') do |f|
     f.write(s)
   end

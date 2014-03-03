@@ -13,10 +13,11 @@ task :create_ruby_wrapper, :frcp_url do |t, args|
   tmpl = File.read("#{ruby_wrapper}.in")
 
   home = ENV['HOME']
+  rvm_home = ENV["rvm_bin_path"].match(/.*rvm/)[0]
   gp = ENV['GEM_PATH']
   d, ruby, gemset = gp.match(/.*(ruby.*)@(.*)/).to_a
 
-  s = tmpl.gsub('%HOME%', home).gsub('%RUBY%', ruby).gsub('%GEMSET%', gemset)
+  s = tmpl.gsub('%HOME%', home).gsub('%RVM_HOME%', rvm_home).gsub('%RUBY%', ruby).gsub('%GEMSET%', gemset)
   File.open(ruby_wrapper, 'w') do |f|
     f.write(s)
   end

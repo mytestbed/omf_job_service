@@ -32,6 +32,7 @@ module OMF::JobService::Resource
     oproperty :description, String
     oproperty :priority, Integer
     oproperty :slice, String
+    oproperty :irods_path, String
     oproperty :oedl_script, String
     oproperty :ec_properties, Object, functional: false, set_filter: :filter_ec_property
     oproperty :oml_db, String
@@ -90,6 +91,7 @@ module OMF::JobService::Resource
       h = super
       h[:status] = self.status
       h[:oml_db] = self.oml_db
+      h[:irods_path] = self.irods_path
 
       if fn = log_file_name()
         if File.readable?(fn)

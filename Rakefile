@@ -1,6 +1,6 @@
 
 # Bundler is messing with that later on
-GEM_PATH = ENV['GEM_PATH']
+GEM_PATH = ENV['_ORIGINAL_GEM_PATH']
 
 # Setup bundler environment
 TOP_DIR = File.dirname(File.symlink?(__FILE__) ? File.readlink(__FILE__) : __FILE__)
@@ -48,11 +48,6 @@ task 'create_server_bin' do
 
   home = ENV['HOME']
   rvm_home = ENV["rvm_bin_path"].match(/.*rvm/)[0]
-  gp = ENV['GEM_PATH']
-  #p ENV['GEM_HOME']
-  #p ENV.keys
-  #p gp
-
   d, ruby, gemset = GEM_PATH.match(/.*(ruby.*)@(.*)/).to_a
 
   s = tmpl.gsub('%HOME%', home).gsub('%RVM_HOME%', rvm_home).gsub('%RUBY%', ruby).gsub('%GEMSET%', gemset)

@@ -12,5 +12,10 @@ gem 'omf_base', override_with_local('../omf_base')
 gem 'omf_sfa', override_with_local('../omf_sfa')
 gem 'god'
 
+gem 'thin_async'
+gem "pg"
+gem "em-pg-client", "~> 0.2.1", :require => ['pg/em', 'em-synchrony/pg']
+gem "em-pg-sequel"
+
 # TODO: Check if this is still needed. New macaddr gem forgot that
 gem 'systemu'

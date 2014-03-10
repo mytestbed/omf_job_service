@@ -45,6 +45,8 @@ module OMF::JobService::Resource
     oproperty :status, String, set_filter: :filter_status
     oproperty :message, String
     oproperty :user, :user, inverse: :jobs
+    #oproperty :measurement_points, OMF::JobService::Resource::MeasurementPoint, functional: false
+    oproperty :measurement_points, :measurement_point, functional: false
 
     def initialize(opts)
       super
@@ -134,6 +136,7 @@ module OMF::JobService::Resource
       log_file = log_file_name ? File.new(log_file_name, 'w') : nil
       self.start_time = Time.now
       app = OMF::Base::ExecApp.new(self.name, cmd) do |event, id, msg|
+        monitor_app_event(event, msg)
         if log_file
           log_file.puts("#{event}: #{msg}")
           log_file.flush # for debugging we want this quickly
@@ -158,6 +161,33 @@ module OMF::JobService::Resource
       self.pid = app.pid
       self.status = :running
       save
+    end
+
+    def monitor_app_event(event, msg)
+      return unless event == 'STDOUT'
+      if (m = msg.match(/: REPORT:([A-Za-z:]*)\s*(.*)/))
+        debug "graph_description: #{m[1]} -- #{m[2]}"
+        case m[1]
+        when /START:/
+          error "Unfinished graph description detected - #{@gd}" if @gd
+          @gd = {job: self, oml_db: self.oml_db, name: (m[2] || 'unknown').strip.downcase}
+        when /CAPTION:/
+          @gd[:caption] = URI.decode(m[2])
+        when /MS:/
+          @gd[:name] = @gd[:name] + ':' + m[1].split(':')[1]
+          @gd[:sql] = URI.decode(m[2])
+        when /STOP/
+          begin
+            ms = OMF::JobService::Resource::MeasurementPoint.new(@gd)
+            self.reload # could be out of date by now
+            self.measurement_points << ms
+            self.save
+          rescue => ex
+            warn "While creating measurement point - #{ex}"
+          end
+          @gd = nil
+        end
+      end
     end
 
     def oml_server

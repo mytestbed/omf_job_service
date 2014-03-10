@@ -1,4 +1,4 @@
-#!/usr/bin/env ./ruby_wrapper
+#!/usr/bin/env ruby
 
 require 'oml4r'
 #puts OML4R::VERSION

@@ -6,7 +6,7 @@ task 'post-install', [:frcp_url] => [:create_ruby_wrapper, :create_config_files]
 
 
 task :create_ruby_wrapper, :frcp_url do |t, args|
-  ruby_wrapper = 'ruby_wrapper'
+  ruby_wrapper = 'ruby'
   unless File.readable?("#{ruby_wrapper}.in")
     abort "Can't find '#{ruby_wrapper}.in' in local directory"
   end

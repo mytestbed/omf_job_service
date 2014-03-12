@@ -44,7 +44,8 @@ module OMF::JobService::Resource
     oproperty :exit_code, Integer
     oproperty :status, String, set_filter: :filter_status
     oproperty :message, String
-    oproperty :user, :user, inverse: :jobs
+    #oproperty :user, :user, inverse: :jobs
+    oproperty :username, String
     #oproperty :measurement_points, OMF::JobService::Resource::MeasurementPoint, functional: false
     oproperty :measurement_points, :measurement_point, functional: false
 
@@ -94,6 +95,7 @@ module OMF::JobService::Resource
       h[:status] = self.status
       h[:oml_db] = self.oml_db
       h[:irods_path] = self.irods_path
+      h[:username] = self.username
 
       if fn = log_file_name()
         if File.readable?(fn)

@@ -30,6 +30,8 @@ module OMF::JobService
           q[:status] = 'pending'
         when 'running'
           q[:status] = 'running'
+        when 'username'
+          q[:username] = v
         when 'pat'
           q[:name] = "%#{v}%"
         when 'limit'

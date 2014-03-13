@@ -33,8 +33,16 @@ module OMF::JobService
           name: resource.name,
           job: {uri: resource.job.href, status: resource.job.status}
         }
-        #return ['application/json', res]
-        response = Thin::AsyncResponse.new(opts[:req].env)
+
+        # TODO: This is a bit of a hack. AsyncResponse ignores all the headers
+        # which are added, such as CORS directives. So we need to add them here
+        # as well.
+        headers = {
+          "Access-Control-Allow-Origin" => "*",
+          "Access-Control-Allow-Methods" => "GET, POST, OPTIONS",
+          "Content-Type" => 'application/javascript'
+        }
+        response = Thin::AsyncResponse.new(opts[:req].env, 200, headers)
         resource.data_async do |action, msg|
           case action
           when :success

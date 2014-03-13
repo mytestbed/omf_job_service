@@ -25,6 +25,14 @@ end
 
 opts = OMF::Base::Thin::Runner.instance.options
 
+require 'rack/cors'
+use Rack::Cors, debug: true do
+  allow do
+    origins '*'
+    resource '*', :headers => :any, :methods => [:get, :post, :options]
+  end
+end
+
 require 'omf-sfa/am/am-rest/session_authenticator'
 use OMF::SFA::AM::Rest::SessionAuthenticator, #:expire_after => 10,
           :login_url => (REQUIRE_LOGIN ? '/login' : nil),

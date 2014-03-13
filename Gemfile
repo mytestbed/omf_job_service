@@ -17,5 +17,8 @@ gem "pg"
 gem "em-pg-client", "~> 0.2.1", :require => ['pg/em', 'em-synchrony/pg']
 gem "em-pg-sequel"
 
+# Cross domain request
+gem 'rack-cors', :require => 'rack/cors'
+
 # TODO: Check if this is still needed. New macaddr gem forgot that
 gem 'systemu'

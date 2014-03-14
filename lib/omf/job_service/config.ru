@@ -13,14 +13,11 @@ end
 
 require 'omf-sfa/resource/oresource'
 OMF::SFA::Resource::OResource.href_resolver do |res, o|
-  unless @http_prefix ||=
-    @http_prefix = "http://#{Thread.current[:http_host]}"
-  end
   rtype = res.resource_type.to_sym
   unless [:job, :user].include?(rtype)
     rtype = :resource
   end
-  "#@http_prefix/#{rtype}s/#{res.uuid}"
+  "http://#{Thread.current[:http_host]}/#{rtype}s/#{res.uuid}"
 end
 
 opts = OMF::Base::Thin::Runner.instance.options

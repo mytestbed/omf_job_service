@@ -3,6 +3,7 @@
 REQUIRE_LOGIN = false
 
 require 'rack/file'
+# TODO: Is still necessary now that we have CORS middleware?
 class MyFile < Rack::File
   def call(env)
     c, h, b = super

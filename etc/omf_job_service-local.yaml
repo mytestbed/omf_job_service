@@ -13,7 +13,8 @@ job_service:
     log_file_dir: '/tmp'
 
   scheduler:
-    require: 'omf/job_service/resource/job'
+    require: 'omf/job_service/scheduler/simple_scheduler'
     class: 'OMF::JobService::Scheduler::SimpleScheduler'
+
     # simple scheduler specific
     resources: ['test1']

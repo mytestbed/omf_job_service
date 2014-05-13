@@ -34,19 +34,19 @@ module OMF
         require 'omf/job_service/resource/job'
         Resource::Job.init(jcfg)
       end
+
+      # Setup scheduler
       scfg = opts.delete(:scheduler) || {}
       klass = scfg.delete(:class)
       requ = scfg.delete(:require)
 
-      # TODO: Scheduler class should be configurable as well
-      require 'omf/job_service/scheduler/simple_scheduler'
-      @@scheduler = Scheduler::SimpleScheduler.new(scfg)
+      require requ
+      s_class = klass.split("::").inject(Object) do |mod, klass_name|
+        mod.const_get(klass_name)
+      end
 
-
+      @@scheduler = s_class.new(scfg)
       EM.next_tick { @@scheduler.start }
     end
   end
 end
-
-
-

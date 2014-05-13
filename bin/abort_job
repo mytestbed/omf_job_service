@@ -7,6 +7,7 @@ require 'net/http'
 require "json"
 
 $verbose = false
+$kill_all = false
 
 name = nil
 uri = URI.parse('http://localhost:8002/jobs')
@@ -21,33 +22,55 @@ optparse = OptionParser.new do |opts|
     puts opts
     exit
   end
+  opts.on( '--kill-all', 'Abort all running/pending jobs' ) do
+    $kill_all = true
+  end
 end
+
 optparse.parse!
 
-# Next argument should be script file
-unless ARGV.length >= 1
-  puts "ERROR: Missing script file\n"
-  puts optparse
-  abort
+request = { status: 'aborted' }
+
+if $kill_all
+  jobs_to_kill = []
+
+  # Find Pending/Running jobs
+  ["pending", "running"].each do |status|
+    req = Net::HTTP::Get.new("#{uri.path}?#{status}", { 'Content-Type' =>'application/json' })
+    response = Net::HTTP.new(uri.host, uri.port).request(req)
+    jobs_to_kill += JSON.parse(response.body)
+  end
+  puts "Found #{jobs_to_kill.size} job(s) to kill"
+  # Then kill them all
+  jobs_to_kill.each do |job|
+    uri = URI.parse(job["href"])
+    puts "Sending the kill request to '#{uri}'" if $verbose
+    kill_req = Net::HTTP::Post.new(uri.path, {'Content-Type' =>'application/json'})
+    kill_req.body = JSON.pretty_generate(request)
+    response = Net::HTTP.new(uri.host, uri.port).start { |http| http.request(kill_req) }
+    if $verbose
+      puts "Response #{response.code} #{response.message}:\n#{response.body}"
+    else
+      puts "Response #{response.code} #{response.message}"
+    end
+  end
+else
+  unless ARGV.length >= 1
+    puts "ERROR: Missing job UUID\n"
+    puts optparse
+    abort
+  end
+
+  job_id = ARGV.shift
+
+  if $verbose
+    puts "Sending the following request to job '#{job_id}'"
+    puts JSON.pretty_generate(request)
+  end
+
+  req = Net::HTTP::Post.new("#{uri.path}/#{job_id}", {'Content-Type' =>'application/json'})
+  #req.basic_auth @user, @pass
+  req.body = JSON.pretty_generate(request)
+  response = Net::HTTP.new(uri.host, uri.port).start {|http| http.request(req) }
+  puts "Response #{response.code} #{response.message}:\n#{response.body}"
 end
-uri = URI.parse(ARGV.shift)
-
-
-request = {
-  status: 'aborted'
-}
-
-# OK, time ot post it
-if $verbose
-  puts "Sending the following request to '#{url}'"
-  puts JSON.pretty_generate(request)
-end
-
-req = Net::HTTP::Post.new(uri.path, {'Content-Type' =>'application/json'})
-#req.basic_auth @user, @pass
-req.body = JSON.pretty_generate(request)
-response = Net::HTTP.new(uri.host, uri.port).start {|http| http.request(req) }
-puts "Response #{response.code} #{response.message}:\n#{response.body}"
-
-
-

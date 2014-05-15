@@ -8,7 +8,7 @@ omf_ec/bin
 test/omf_rc/test1_config.yaml
 test/omf_rc/test2_config.yaml
 test/omf_rc/ruby_wrapper
-omf_ec/omf_ec.yaml
-omf_ec/omf_ec.yaml
+omf_ec/omf_ec.y*ml
 bin/omf_job_service
 omf_ec/omf_ec
+*.orig

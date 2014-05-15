@@ -4,7 +4,7 @@ require 'yaml'
 desc "Call after 'bundle install --path vendor'"
 task 'post-install', [:frcp_url] => [:create_omf_ec, :create_config_file]
 
-
+desc "Create omf_ec"
 task :create_omf_ec, :frcp_url do |t, args|
   target = 'omf_ec'
   frcp_url = args[:frcp_url] || ENV['FRCP_URL']
@@ -29,17 +29,18 @@ task :create_omf_ec, :frcp_url do |t, args|
   puts ".. Created '#{target}'."
 end
 
+desc "Create config file"
 task :create_config_file, :frcp_url do |t, args|
   frcp_url = args[:frcp_url] || ENV['FRCP_URL']
   unless frcp_url
     abort "Missing 'frcp_url'. Either export FRCP_URL, or call 'rake create_config_files[FRCP_URL] "
   end
-  target = 'omf_ec.yaml'
+  target = 'omf_ec.yml'
   unless File.readable?("#{target}.in")
     abort "Can't find '#{target}.in' in local directory"
   end
   cfg = YAML.load_file("#{target}.in")
-  cfg[:u] = frcp_url
+  cfg["communication"]["url"] = frcp_url
   File.open(target, 'w') do |f|
     f.write(cfg.to_yaml)
   end

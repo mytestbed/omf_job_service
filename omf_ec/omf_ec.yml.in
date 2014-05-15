@@ -1,0 +1,6 @@
+environment: 'development'
+
+communication:
+  url: FRCP_URL
+
+show_graph: true

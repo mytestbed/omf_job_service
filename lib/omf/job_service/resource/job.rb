@@ -132,7 +132,7 @@ module OMF::JobService::Resource
         "--#{e.name} #{e.resource? ? e.resource_name : e.value}"
       end
       # Put together the command line and return
-      cmd = "env -i #{EC_PATH} -e #{self.name} --oml_uri #{oml_server} #{script_file.path} -- #{opts.join(' ')}"
+      cmd = "env -i #{EC_PATH} --experiment #{self.name} --oml_uri #{oml_server} #{script_file.path} -- #{opts.join(' ')}"
       debug "Executing '#{cmd}'"
       log_file_name = log_file_name()
       log_file = log_file_name ? File.new(log_file_name, 'w') : nil

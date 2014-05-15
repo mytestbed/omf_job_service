@@ -88,6 +88,7 @@ module OMF::JobService::Resource
     end
 
     def abort_job
+      self.status = 'aborted'
     end
 
     def to_hash_brief(opts = {})

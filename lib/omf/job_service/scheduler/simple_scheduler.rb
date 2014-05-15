@@ -15,6 +15,7 @@ module OMF::JobService
 
       def initialize(opts)
         @available_resources = opts[:resources]
+        @hard_timeout = opts[:hard_timeout]
         debug "Available resource: #{@available_resources}"
         @started = false
         @running_jobs = []
@@ -62,7 +63,12 @@ module OMF::JobService
         if alloc_resources(resources, job)
           info "Running job '#{job.name}' with resource(s) #{job.resources.to_s}"
           # Start the job
-          EM.next_tick { job.run { dealloc_resources_for_job(job) }}
+          EM.next_tick do
+            if @hard_timeout
+              EM.add_timer(@hard_timeout) { job.abort_job }
+            end
+            job.run { dealloc_resources_for_job(job) }
+          end
         end
       end
 

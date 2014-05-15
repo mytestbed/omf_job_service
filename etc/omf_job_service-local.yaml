@@ -7,7 +7,8 @@ job_service:
   disable_https: true
 
   jobs:
-    oml_server: 'tcp:localhost:3004'
+    #oml_server: 'tcp:localhost:3004'
+    oml_server: 'tcp:srv.mytestbed.net:3004'
     #db_server: 'postgres://user:password@localhost'
     db_server: 'postgres://localhost'
     log_file_dir: '/tmp'
@@ -15,6 +16,8 @@ job_service:
   scheduler:
     require: 'omf/job_service/scheduler/simple_scheduler'
     class: 'OMF::JobService::Scheduler::SimpleScheduler'
+    # Maximum duration of experiment set to 5 minutes
+    hard_timeout: 300
 
     # simple scheduler specific
     resources: ['test1']

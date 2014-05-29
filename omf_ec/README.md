@@ -1,8 +1,7 @@
 
 This directory will contain a working OMF EC configured
 
-Installation
-------------
+# Installation
 
 Before starting, make sure the following libraries are installed. On Debian systems, the following should suffice:
 
@@ -16,8 +15,31 @@ The install the GEMS and local modifications
     export FRCP_URL=amqp://localhost # or your favorite FRCP comms provider
     rake post-install
 
-Testing
--------
+# Upgrade EC
+
+Locate Gemfile and find out reference to omf\_ec and omf\_common
+
+For example:
+
+    gem 'omf_common', override_with_local(path: '../../omf6/omf_common', version: "~> 6.1.2.pre")
+    gem 'omf_ec', override_with_local(path: '../../omf6/omf_ec', version: "~> 6.1.2.pre")
+
+To upgrade, simply change the content of key :version
+
+Gem version convention is as following:
+
+* ~> indicates matching minor releases, so it will automatically pick those bug fixes etc.
+* ~> 6.1.2 will match all 6.1.x releases, until 6.2.0
+* ~> 6.1.2.pre will match all 6.1.2 pre releases, i.e. 6.1.2.pre.x
+
+Then simply do:
+
+    bundle update
+
+Check the output to see if desired version got installed.
+
+
+# Testing
 
 To test the setup, run a simple experiment
 

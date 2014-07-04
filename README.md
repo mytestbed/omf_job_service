@@ -39,6 +39,16 @@ Now we are ready to install all the necessary Gems
 Before starting the service, please also install tan OMF EC in the 'omf_ec' directoy
 following the instructions in the [README](omf_ec/README.md) in that directory.
 
+IMPORTANT!!!
+------------
+
+If you want to use an OML server with a PostgreSQL backend to log the resources of your experiment,
+then you *MUST* update the config file etc/omf_job_service-local.yaml with the following:
+
+    oml_server: 'tcp:your.oml.server.com.:3003'
+    db_server: 'postgres://the_psql_user_to_use:the_password_for_that_user@your.psql.server.com' 
+
+
 Starting the Service
 --------------------
 

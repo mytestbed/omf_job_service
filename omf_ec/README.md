@@ -12,8 +12,15 @@ Before starting, make sure the following libraries are installed. On Debian syst
 The install the GEMS and local modifications
 
     bundle install --path vendor
-    export FRCP_URL=amqp://localhost # or your favorite FRCP comms provider
+    export FRCP_URL=amqp://your.amqp.server..com # or your favorite FRCP comms provider
     rake post-install
+
+# IMPORTANT
+-----------
+
+Do not forget to set the FRCP URL variable as mentioned above with your *own* value for a comms provider, e.g. amqp://foo.com.
+
+When using a local co-located AMQP server, please use the full hostname or address rather than 'localhost' as there seemed to be issues with the latter in the past.  
 
 # Upgrade EC
 

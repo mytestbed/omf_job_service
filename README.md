@@ -48,6 +48,15 @@ then you *MUST* update the config file etc/omf_job_service-local.yaml with the f
     oml_server: 'tcp:your.oml.server.com.:3003'
     db_server: 'postgres://the_psql_user_to_use:the_password_for_that_user@your.psql.server.com' 
 
+Furthermore, if you are using this Job Service in conjunction of a LabWiki's Experiment Plugin, then
+you *MUST* make sure that your PSQL server machine (e.g. your.psql.server.com in the above example)
+have the following enabled:
+
+* the TCP port 5432 is open, i.e. this allow clients to reach your PSQL server
+* your PSQL server is configured to allow connection from remote clients (http://www.postgresql.org/docs/9.3/static/auth-pg-hba-conf.html), as an example this could be achieved by having the following line in your file pg_hba.conf. Please update according to your own security policy.
+   
+    host   all   all   0/0   md5
+
 
 Starting the Service
 --------------------

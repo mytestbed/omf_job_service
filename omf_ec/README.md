@@ -3,16 +3,22 @@ This directory will contain a working OMF EC configured
 
 # Installation
 
-Before starting, make sure the following libraries are installed. On Debian systems, the following should suffice:
+Before starting, make sure the following libraries and ruby header files are installed. On Debian systems, the following should suffice:
 
+    apt-get install ruby1.9.1-dev
     apt-get install libpq-dev
     apt-get install libxml2-dev
-    apt-get install libxslt
+    apt-get install libxslt-dev
+
+You will also need 'bundler' and 'rake', which can be installed with:
+
+    gem install bundler
+    gem install rake
 
 The install the GEMS and local modifications
 
     bundle install --path vendor
-    export FRCP_URL=amqp://your.amqp.server..com # or your favorite FRCP comms provider
+    export FRCP_URL=amqp://localhost # or your favorite FRCP comms provider
     rake post-install
 
 # IMPORTANT
@@ -20,7 +26,7 @@ The install the GEMS and local modifications
 
 Do not forget to set the FRCP URL variable as mentioned above with your *own* value for a comms provider, e.g. amqp://foo.com.
 
-When using a local co-located AMQP server, please use the full hostname or address rather than 'localhost' as there seemed to be issues with the latter in the past.  
+When using a local co-located AMQP server, please use the full hostname or address rather than 'localhost' as there seemed to be issues with the latter in the past.
 
 # Upgrade EC
 

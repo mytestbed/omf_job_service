@@ -16,4 +16,4 @@ fi
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd ${SCRIPT_DIR}
-exec bundle exec omf_ec -u ${FRCP_URL} -c omf_ec.yml exec --show-graph  $*
+exec bundle exec omf_ec -c omf_ec.yml exec $*

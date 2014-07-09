@@ -13,7 +13,6 @@ Bundler.setup()
 require 'yaml'
 require 'god'
 
-
 desc "Starting the Job Service as a daemon"
 task :start, :config do |t, args|
   config = args[:config]
@@ -39,7 +38,7 @@ end
 
 
 desc "Call after 'bundle install --path vendor'"
-task 'post-install', [:frcp_url] => [:create_server_bin]
+task 'post-install' => [:create_server_bin]
 
 task 'create_server_bin' do
   target = 'bin/omf_job_service'

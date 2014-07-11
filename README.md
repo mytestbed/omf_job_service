@@ -36,6 +36,11 @@ Now we are ready to install all the necessary Gems
     bundle install --path vendor
     rake post-install
 
+If you are installing on a Ubuntu 14.04 without RVm, you may need the following settings (which will be used during the installation of some dependencies)
+
+    bundle config build.eventmachine --with-cflags=-O2 -pipe -march=native -w
+    bundle config build.thin --with-cflags=-O2 -pipe -march=native -w
+
 Before starting the service, please also install tan OMF EC in the 'omf_ec' directoy
 following the instructions in the [README](omf_ec/README.md) in that directory.
 

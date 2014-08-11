@@ -53,6 +53,7 @@ class PositionMP < OML4R::MPBase
   param :longitude, :type => :double
   param :latitude, :type => :double
   param :drift, :type => :double
+  param :speed, :type => :double
 end
 
 # From a Google example of KML files for drawing paths...
@@ -104,6 +105,7 @@ begin
   @olat = -33.897154  # Centenial Park, Sydney, Australia
   @radius = 10000
   @generate_kml = false
+  @varying_speed = false # As requested by MO
   @kml = nil
   OML4R::init(ARGV, opts) do |ap|
     ap.on("-d","--duration TIME","Random walk duration in second (default 30s)") { |t| @duration = t.to_i }
@@ -113,10 +115,21 @@ begin
     ap.on("-l","--latitude LAT","Start latitude based on WGS84 datum (default: -33.897154)") { |l| @olat = l.to_f }
     ap.on("-r","--radius DISTANCE","Walk boundaries in m from its starting point (default 10000 m)") { |l| @radius = l.to_f }
     ap.on("-k","--generate-kml","Generate a KML file (default: FALSE)") { |l| @generate_kml = true }
+    ap.on("-v","--varying-speed","Vary the speed around the set one and half of it (default: FALSE)") { |l| @varying_speed = true }
   end
 rescue OML4R::MissingArgumentException => mex
   $stderr.puts mex
   exit
+end
+
+# Normally distributed random number generator (CC0 license) from:
+# http://stackoverflow.com/questions/5825680
+def gaussian(mean, stddev)
+  theta = 2 * Math::PI * Kernel.rand
+  rho = Math.sqrt(-2 * Math.log(1 - Kernel.rand))
+  scale = stddev * rho
+  x = mean + scale * Math.cos(theta)
+  return x
 end
 
 # Record some metatada
@@ -132,17 +145,19 @@ PositionMP.inject_metadata('datum','WGS84')
 # All computation below is using base SI units and WFS84 datum
 long = @olong
 lat = @olat
-distance = @speed * @interval * ONE_METER_IN_DEGREE
 start_kml if @generate_kml
 (@duration/@interval).times do |i|
   drift = @radius + 1
   while drift > @radius 
     sleep(@interval)
+    # Varying speed as requested by MO
+    ispeed = @varying_speed ? gaussian((rand(2)==0) ? @speed : @speed/2, @speed/8) : @speed
+    distance = ispeed * @interval * ONE_METER_IN_DEGREE
     angle = rand() * 2 * Math::PI
     long = long + (distance * Math.cos(angle))
     lat = lat + (distance * Math.sin(angle))
     drift = Math.sqrt( (lat - @olat)**2 + (long - @olong)**2 ) * ONE_DEGREE_IN_METER
-    PositionMP.inject(long,lat,drift) if drift <= @radius
+    PositionMP.inject(long,lat,drift,ispeed) if drift <= @radius
     @kml << "#{long},#{lat},100\n" if drift <= @radius && @generate_kml
   end
 end

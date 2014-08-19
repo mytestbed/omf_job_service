@@ -1,29 +1,26 @@
 
-OMF Job Service
-===============
+# OMF Job Service
 
 This directory contains the implementations of a Job Scheduling Service
 which will first allocate resources to a job (experiment) and then
 execute the job when the necessary resources become available.
 
-Installation
-------------
+## Installation
 
 At this stage the best course of action is to clone the repository
 
     git clone https://github.com/mytestbed/omf_job_service.git
     cd omf_job_service
 
-This service requires 'ruby1.9.3' provided by RVM. If you don't have one in this account, install it with:
-
-    curl -sSL https://get.rvm.io | bash -s stable --ruby=1.9.3
+This service requires Ruby version 1.9+. If you don't have one, install it according to https://www.ruby-lang.org/en/installation/
 
 Before installing the necessary Gems, make sure that you have the necessary libraries installed. On a Ubuntu
 system, execute the following:
 
-    sudo apt-get install sqlite3
-    sudo apt-get install libxml2-dev
-    sudo apt-get install libxslt-dev
+    sudo apt-get install ruby1.9.1-dev sqlite3 libpq-dev
+
+    # Only if you are going to use XMPP
+    # sudo apt-get install libxml2-dev libxslt-dev
 
 On Ubuntu 12.04 LTS you will also need to install the following package:
 
@@ -41,17 +38,18 @@ If you are installing on a Ubuntu 14.04 without RVm, you may need the following 
     bundle config build.eventmachine --with-cflags=-O2 -pipe -march=native -w
     bundle config build.thin --with-cflags=-O2 -pipe -march=native -w
 
-Before starting the service, please also install tan OMF EC in the 'omf_ec' directoy
-following the instructions in the [README](omf_ec/README.md) in that directory.
+## Install OMF EC
 
-IMPORTANT!!!
-------------
+*Before starting the service, please also install tan OMF EC in the 'omf_ec' directoy
+following the instructions in the [README](omf_ec/README.md) in that directory.*
+
+## IMPORTANT!!!
 
 If you want to use an OML server with a PostgreSQL backend to log the resources of your experiment,
 then you *MUST* update the config file etc/omf_job_service-local.yaml with the following:
 
     oml_server: 'tcp:your.oml.server.com.:3003'
-    db_server: 'postgres://the_psql_user_to_use:the_password_for_that_user@your.psql.server.com' 
+    db_server: 'postgres://the_psql_user_to_use:the_password_for_that_user@your.psql.server.com'
 
 Furthermore, if you are using this Job Service in conjunction of a LabWiki's Experiment Plugin, then
 you *MUST* make sure that your PSQL server machine (e.g. your.psql.server.com in the above example)
@@ -59,12 +57,11 @@ have the following enabled:
 
 * the TCP port 5432 is open, i.e. this allow clients to reach your PSQL server
 * your PSQL server is configured to allow connection from remote clients (http://www.postgresql.org/docs/9.3/static/auth-pg-hba-conf.html), as an example this could be achieved by having the following line in your file pg_hba.conf. Please update according to your own security policy.
-   
+
     host   all   all   0/0   md5
 
 
-Starting the Service
---------------------
+## Starting the Service
 
 To start a job service from this directory, run the following:
 
@@ -82,8 +79,7 @@ which should result in something like:
     INFO Server: >> Listening on 0.0.0.0:8002, CTRL+C to stop
 
 
-Testing REST API
-----------------
+## Testing REST API
 
 If you started the service with the '--test-load-state' option, the service got preloaded with a few
 resources. To list all jobs:

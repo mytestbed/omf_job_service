@@ -70,6 +70,16 @@ map '/logs' do
   end
 end
 
+require 'omf/job_service/dumper'
+map '/dump' do
+  handler = proc do |env|
+    req = Rack::Request.new(env)
+    if req.get?
+      MyFile.new(OMF::JobService::Dumper.dump_folder).call(env)
+    end
+  end
+  run handler
+end
 
 if REQUIRE_LOGIN
   map '/login' do

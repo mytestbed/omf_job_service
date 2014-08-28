@@ -21,3 +21,7 @@ job_service:
 
     # simple scheduler specific
     resources: ['test1']
+
+  dumper:
+    require: 'omf/job_service/dumper/default'
+    class: 'OMF::JobService::Dumper::Default'

@@ -35,6 +35,12 @@ module OMF
         Resource::Job.init(jcfg)
       end
 
+      if (dumper_cfg = opts.delete(:dumper))
+        require 'omf/job_service/dumper'
+        dumper_cfg.merge!(db_server: jcfg[:db_server]) if jcfg && jcfg[:db_server]
+        OMF::JobService::Dumper.init(dumper_cfg)
+      end
+
       # Setup scheduler
       scfg = opts.delete(:scheduler) || {}
       klass = scfg.delete(:class)

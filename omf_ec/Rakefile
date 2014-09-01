@@ -1,3 +1,13 @@
+# Bundler is messing with that later on
+#GEM_PATH = ENV['_ORIGINAL_GEM_PATH']
+GEM_PATH = ENV['GEM_PATH']
+
+
+# Setup bundler environment
+TOP_DIR = File.dirname(File.symlink?(__FILE__) ? File.readlink(__FILE__) : __FILE__)
+ENV['BUNDLE_GEMFILE'] = File.join(TOP_DIR, 'Gemfile')
+require 'bundler'
+Bundler.setup()
 
 require 'yaml'
 
@@ -17,7 +27,7 @@ task :create_omf_ec, :frcp_url do |t, args|
   tmpl = File.read("#{target}.in")
 
   home = ENV['HOME']
-  rvm_bin_path = ENV["rvm_bin_path"]
+  rvm_bin_path = ENV["rvm_bin_pathX"]
   if rvm_bin_path
     rvm_home = rvm_bin_path.match(/.*rvm/)[0]
     #gp = ENV['GEM_PATH']

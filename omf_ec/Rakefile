@@ -27,7 +27,7 @@ task :create_omf_ec, :frcp_url do |t, args|
   tmpl = File.read("#{target}.in")
 
   home = ENV['HOME']
-  rvm_bin_path = ENV["rvm_bin_pathX"]
+  rvm_bin_path = ENV["rvm_bin_path"]
   if rvm_bin_path
     rvm_home = rvm_bin_path.match(/.*rvm/)[0]
     #gp = ENV['GEM_PATH']

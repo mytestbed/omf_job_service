@@ -7,12 +7,14 @@ module OMF::JobService
         super
         @http_host = "http://#{opts[:http_host]}"
         @location = "#{@@dump_folder}/#{@db_name}.pg.sql.gz"
+        @path = "dump/#{@db_name}.pg.sql.gz"
       end
 
       def dump
         # TODO Check if DB exists?
         `#{dump_cmd}`
-        $?.exitstatus == 0 ? { success: "#{@http_host}#{@location}" } : { error: 'Database dump failed' }
+        path_html = "<a href='#{@http_host}#{@path}' target='_blank'>#{@http_host}#{@path}</a>"
+        $?.exitstatus == 0 ? { success: path_html } : { error: 'Database dump failed' }
       end
 
       private

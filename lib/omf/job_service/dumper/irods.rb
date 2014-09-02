@@ -4,7 +4,7 @@ require 'omf/job_service/dumper/default'
 module OMF::JobService
   class Dumper
     class IRODS < Default
-      def initialize
+      def initialize(opts = {})
         super
         # TODO Construct IRODS loc
         @irods_location = "irods_loc"

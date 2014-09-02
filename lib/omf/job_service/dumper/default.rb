@@ -5,13 +5,14 @@ module OMF::JobService
     class Default < Dumper
       def initialize(opts = {})
         super
+        @http_host = "http://#{opts[:http_host]}"
         @location = "#{@@dump_folder}/#{@db_name}.pg.sql.gz"
       end
 
       def dump
         # TODO Check if DB exists?
         `#{dump_cmd}`
-        $?.exitstatus == 0 ? { success: @location } : { error: 'Database dump failed' }
+        $?.exitstatus == 0 ? { success: "#{@http_host}#{@location}" } : { error: 'Database dump failed' }
       end
 
       private

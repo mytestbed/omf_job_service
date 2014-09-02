@@ -76,6 +76,10 @@ map '/dump' do
     req = Rack::Request.new(env)
     if req.get?
       MyFile.new(OMF::JobService::Dumper.dump_folder).call(env)
+    elsif req.post?
+      opts = JSON.parse(req.body.read)
+      opts[:http_host] = env["HTTP_HOST"]
+      OMF::JobService::Dumper.dump(opts)
     end
   end
   run handler

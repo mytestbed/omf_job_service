@@ -13,7 +13,7 @@ module OMF::JobService
       def dump
         # TODO Check if DB exists?
         `#{dump_cmd}`
-        path_html = "<a href='#{@http_host}#{@path}' target='_blank'>#{@http_host}#{@path}</a>"
+        path_html = "<a href='#{@http_host}/#{@path}' target='_blank'>#{@http_host}/#{@path}</a>"
         $?.exitstatus == 0 ? { success: path_html } : { error: 'Database dump failed' }
       end
 

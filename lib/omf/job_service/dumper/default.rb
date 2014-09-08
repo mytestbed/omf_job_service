@@ -12,8 +12,8 @@ module OMF::JobService
 
       def dump
         `#{dump_cmd}`
-        path_html = "<a href='#{@http_host}/#{@path}' target='_blank'>#{@http_host}/#{@path}</a>"
-        $?.exitstatus == 0 ? { success: path_html } : { error: 'Database dump failed' }
+        full_path = "#{@http_host}/#{@path}"
+        $?.exitstatus == 0 ? { success: full_path } : { error: 'Database dump failed' }
       end
 
       private

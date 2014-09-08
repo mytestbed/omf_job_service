@@ -2,6 +2,18 @@ require 'omf_base/lobject'
 
 module OMF::JobService
   class Dumper < OMF::Base::LObject
+
+    class Reply
+      include EM::Deferrable
+      def each(&block)
+        @callback = block
+      end
+
+      def write(data)
+        @callback.call(data)
+      end
+    end
+
     def self.init(opts = {})
       if opts[:db_server].nil?
         raise ArgumentError, "Missing database server connection information :db_server"
@@ -27,14 +39,24 @@ module OMF::JobService
     end
 
     def self.dump(opts = {})
-      reply = @@klass.new(opts).dump
-      if reply[:success]
-        [200, {'Content-Type' => 'application/json'}, JSON.pretty_generate(reply)]
-      elsif reply[:error]
-        [500, {'Content-Type' => 'application/json'}, JSON.pretty_generate({ error: 'Database dump failed' })]
-      else
-        [500, {'Content-Type' => 'application/json'}, JSON.pretty_generate({ error: "Malformed reply from dump method: '#{reply}'" })]
+      reply = Reply.new
+
+      EM.defer do
+        begin
+          reply_hash = @@klass.new(opts).dump
+          unless reply_hash[:success] || reply_hash[:error]
+            reply_hash = { error: "Malformed reply from dump method: '#{reply}'" }
+          end
+        rescue => e
+          warn e.backtrace.join("\n")
+          reply_hash = { error: "Exception occured while executing dump method: '#{e.message}'" }
+        end
+
+        reply.write(JSON.pretty_generate(reply_hash))
+        reply.succeed
       end
+
+      [200, {'Content-Type' => 'application/json'}, reply]
     end
 
     def self.dump_folder

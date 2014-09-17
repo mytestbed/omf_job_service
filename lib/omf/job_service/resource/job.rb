@@ -32,7 +32,6 @@ module OMF::JobService::Resource
     oproperty :description, String
     oproperty :priority, Integer
     oproperty :slice, String
-    oproperty :irods_path, String
     oproperty :oedl_script, String
     oproperty :ec_properties, Object, functional: false, set_filter: :filter_ec_property
     oproperty :oml_db, String
@@ -48,6 +47,7 @@ module OMF::JobService::Resource
     oproperty :username, String
     #oproperty :measurement_points, OMF::JobService::Resource::MeasurementPoint, functional: false
     oproperty :measurement_points, :measurement_point, functional: false
+    oproperty :verifications, :verification, functional: false
 
     def initialize(opts)
       super
@@ -95,7 +95,6 @@ module OMF::JobService::Resource
       h = super
       h[:status] = self.status
       h[:oml_db] = self.oml_db
-      h[:irods_path] = self.irods_path
       h[:username] = self.username
 
       if fn = log_file_name()
@@ -105,6 +104,12 @@ module OMF::JobService::Resource
         end
       end
       h
+    end
+
+    def to_hash_long(h, objs = {}, opts = {})
+      self.verifications = [OMF::JobService::Resource::Verification.new(oml_db: self.oml_db, job: self)]
+      self.save
+      super
     end
 
     def log_file_name
@@ -155,6 +160,8 @@ module OMF::JobService::Resource
           end
           self.exit_code = ex_c
           self.end_time = Time.now
+          # Verify execution
+          #self.verification = OMF::JobService::Resource::Verification.new(oml_db: self.oml_db)
           self.save
           script_file.unlink
           post_run_block.call() if post_run_block
@@ -210,8 +217,5 @@ module OMF::JobService::Resource
      end
      save
    end
-
-
-
   end # classs
 end # module

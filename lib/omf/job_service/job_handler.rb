@@ -2,6 +2,7 @@
 require 'omf-sfa/am/am-rest/rest_handler'
 require 'omf/job_service/resource'
 require 'omf/job_service/measurement_point_handler'
+require 'omf/job_service/verification_handler'
 
 module OMF::JobService
 
@@ -16,7 +17,8 @@ module OMF::JobService
       # Define handlers
       opts[:job_handler] = self
       @coll_handlers = {
-        measurement_points: (opts[:measurement_points] || MeasurementPointHandler.new(opts))
+        measurement_points: (opts[:measurement_points] || MeasurementPointHandler.new(opts)),
+        verifications: (opts[:verifications] || VerificationHandler.new(opts))
       }
     end
 

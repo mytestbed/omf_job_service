@@ -1,4 +1,4 @@
-show_graph: true
+show-graph: true
 
 communication:
   url: FRCP_URL

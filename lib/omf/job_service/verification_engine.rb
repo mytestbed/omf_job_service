@@ -7,7 +7,6 @@ module OMF::JobService
     attr_reader :result
 
     def self.verify(name, &block)
-      puts 'ADDing'
       @@rules ||= {}
       @@rules[name] = block
     end
@@ -28,13 +27,16 @@ module OMF::JobService
       @conn[:omf_ec_log].where(data: /^Received.+via.+/).count > 0
     end
 
-    def initialize(opts = {})
-      @oml_db = opts[:oml_db]
+    verify "Using R script" do
+      if @r_script
+        # TODO Use R library to verify it
+      end
     end
 
-    def run
-      @conn = Sequel.connect(@oml_db, pool_class: EM::PG::ConnectionPool, max_connections: 2)
+    def initialize(opts = {})
+      @r_script =  opts[:r_script]
       @result = {}
+      @conn = Sequel.connect(opts[:oml_db], pool_class: EM::PG::ConnectionPool, max_connections: 2)
       @@rules.each do |k, v|
         @result[k] = instance_eval(&v)
         break unless @result[k]

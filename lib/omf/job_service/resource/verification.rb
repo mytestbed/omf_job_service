@@ -1,3 +1,5 @@
+require 'omf/job_service/verification_engine'
+
 module OMF::JobService::Resource
   class Verification < OMF::SFA::Resource::OResource
     oproperty :o_name, String # TODO: Hack alert
@@ -14,10 +16,10 @@ module OMF::JobService::Resource
       self.job.href + '/verifications/' + self.uuid
     end
 
-    def to_hash_long(h, objs = {}, opts = {})
-      super
-      h[:data] = href + '/data'
-      h
+    def run_verification
+      EM.synchrony do
+        yield OMF::JobService::VerificationEngine.new(oml_db: self.oml_db).result
+      end
     end
   end
 end

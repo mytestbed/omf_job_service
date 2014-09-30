@@ -18,7 +18,7 @@ module OMF::JobService::Resource
 
     def run_verification
       EM.synchrony do
-        yield OMF::JobService::VerificationEngine.new(oml_db: self.oml_db).result
+        yield OMF::JobService::VerificationEngine.new(oml_db: self.oml_db, job: self.job).result
       end
     end
   end

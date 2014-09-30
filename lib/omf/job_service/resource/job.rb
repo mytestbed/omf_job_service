@@ -48,6 +48,7 @@ module OMF::JobService::Resource
     #oproperty :measurement_points, OMF::JobService::Resource::MeasurementPoint, functional: false
     oproperty :measurement_points, :measurement_point, functional: false
     oproperty :verifications, :verification, functional: false
+    oproperty :r_scripts, Hash
 
     def initialize(opts)
       super
@@ -55,6 +56,8 @@ module OMF::JobService::Resource
       self.status = :pending
       self.oml_db = "#{@@db_server_prefix}/#{self.name}"
       self.requested_time = Time.now
+      # Verify execution
+      self.verifications = [OMF::JobService::Resource::Verification.new(oml_db: self.oml_db, job: self)]
     end
 
     def filter_ec_property(val)
@@ -106,11 +109,6 @@ module OMF::JobService::Resource
       h
     end
 
-    def to_hash_long(h, objs = {}, opts = {})
-      self.verifications = [OMF::JobService::Resource::Verification.new(oml_db: self.oml_db, job: self)]
-      self.save
-      super
-    end
 
     def log_file_name
       return nil unless @@log_file_dir
@@ -155,13 +153,12 @@ module OMF::JobService::Resource
           self.reload # could be out of date by now
           ex_c = msg.to_i
           debug "Experiment '#{self.name}' finished with exit code '#{ex_c}' - #{self.status}"
+
           unless self.status == 'aborted'
             self.status = (ex_c == 0) ? :finished : :failed
           end
           self.exit_code = ex_c
           self.end_time = Time.now
-          # Verify execution
-          #self.verification = OMF::JobService::Resource::Verification.new(oml_db: self.oml_db)
           self.save
           script_file.unlink
           post_run_block.call() if post_run_block

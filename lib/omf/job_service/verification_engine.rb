@@ -1,6 +1,7 @@
 require 'omf_base/lobject'
 require 'em-synchrony'
 require 'em-pg-sequel'
+require 'rserve'
 
 module OMF::JobService
   class VerificationEngine < OMF::Base::LObject
@@ -27,6 +28,7 @@ module OMF::JobService
     def initialize(opts = {})
       @local_rules = {}
       @job = opts[:job]
+      @oml_db = opts[:oml_db]
 
       @job.r_scripts.each do |k, v|
         verify_local k do
@@ -35,7 +37,7 @@ module OMF::JobService
       end
 
       @result = {}
-      @conn = Sequel.connect(opts[:oml_db], pool_class: EM::PG::ConnectionPool, max_connections: 2)
+      @conn = Sequel.connect(@oml_db, pool_class: EM::PG::ConnectionPool, max_connections: 2)
       @@rules.merge(@local_rules).each do |k, v|
         @result[k] = instance_eval(&v)
         break unless @result[k]
@@ -44,8 +46,15 @@ module OMF::JobService
     end
 
     def eval_r_script(r_content)
-      puts Zlib::Inflate.inflate(Base64.decode64(r_content))
-      rand(100)
+      @r_conn = Rserve::Connection.new
+      r = Zlib::Inflate.inflate(Base64.decode64(r_content)).gsub(/\r/, '')
+      if @oml_db =~ /^postgres:\/\/(.*):(.*)@(.+):(.*)\/(.*)$/
+        user, password, host, port, db = $1, $2, $3, $4, $5
+      end
+      r += "\nvalidate(\"#{db}\", \"#{host}\", \"#{user}\", \"#{password}\")"
+      result = @r_conn.eval(r).as_string
+      @r_conn.close
+      result
     end
 
     def verify_local(name, &block)

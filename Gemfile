@@ -22,3 +22,7 @@ gem 'rack-cors', :require => 'rack/cors'
 
 # TODO: Check if this is still needed. New macaddr gem forgot that
 gem 'systemu'
+
+group "verification" do
+  gem "rserve-client"
+end

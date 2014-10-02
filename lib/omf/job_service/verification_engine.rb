@@ -30,7 +30,7 @@ module OMF::JobService
       @job = opts[:job]
       @oml_db = opts[:oml_db]
 
-      @job.r_scripts.each do |k, v|
+      @job.r_scripts && @job.r_scripts.each do |k, v|
         verify_local k do
           eval_r_script(v)
         end

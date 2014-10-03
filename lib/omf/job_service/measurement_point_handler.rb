@@ -27,6 +27,13 @@ module OMF::JobService
 
     # SUPPORTING FUNCTIONS
 
+    def add_resource_to_context(mp, job)
+      debug "ADD #{mp} to #{job}"
+      mp.job = job
+      mp.oml_db = job.oml_db
+      mp.save
+    end
+
     def show_resource_status(resource, opts)
       if resource && opts[:show_data]
         res = {

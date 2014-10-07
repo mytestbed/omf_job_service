@@ -26,14 +26,12 @@ On Ubuntu 12.04 LTS you will also need to install the following package:
 
     sudo apt-get install libsqlite3-dev
 
-** At this stage, please clone https://github.com/mytestbed/omf_sfa.git into the parent directory and update it (git pull) regularily. **
-
 Now we are ready to install all the necessary Gems
 
     bundle install --path vendor
     rake post-install
 
-If you are installing on a Ubuntu 14.04 without RVm, you may need the following settings (which will be used during the installation of some dependencies)
+If you are installing on a Ubuntu 14.04 without RVM, you may need the following settings (which will be used during the installation of some dependencies)
 
     bundle config build.eventmachine --with-cflags=-O2 -pipe -march=native -w
     bundle config build.thin --with-cflags=-O2 -pipe -march=native -w

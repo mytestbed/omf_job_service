@@ -42,6 +42,7 @@ module OMF::JobService
         @result[k] = instance_eval(&v)
         break unless @result[k]
       end
+      @conn.disconnect
       @result
     end
 

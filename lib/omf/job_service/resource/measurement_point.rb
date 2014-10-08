@@ -91,7 +91,7 @@ module OMF::JobService::Resource
             @done = true
           end
         ensure
-          #connection.close if connection
+          connection.disconnect if connection
         end
       end.resume
     end

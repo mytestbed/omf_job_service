@@ -2,6 +2,7 @@ require 'omf_base/lobject'
 require 'em-synchrony'
 require 'em-pg-sequel'
 require 'rserve'
+require 'erb'
 
 module OMF::JobService
   class VerificationEngine < OMF::Base::LObject
@@ -48,11 +49,11 @@ module OMF::JobService
 
     def eval_r_script(r_content)
       @r_conn = Rserve::Connection.new
-      r = Zlib::Inflate.inflate(Base64.decode64(r_content)).gsub(/\r/, '')
+      validate_def = Zlib::Inflate.inflate(Base64.decode64(r_content)).gsub(/\r/, '')
       if @oml_db =~ /^postgres:\/\/(.*):(.*)@(.+):(.*)\/(.*)$/
         user, password, host, port, db = $1, $2, $3, $4, $5
       end
-      r += "\nvalidate(\"#{db}\", \"#{host}\", \"#{user}\", \"#{password}\")"
+      r = ERB.new(r_template).result(binding)
       result = @r_conn.eval(r).as_string
       @r_conn.close
       result
@@ -60,6 +61,24 @@ module OMF::JobService
 
     def verify_local(name, &block)
       @local_rules[name] = block
+    end
+
+    def r_template
+      <<-R
+        experiment_id <- "<%= db %>"
+        oml_server <- "<%= host %>"
+        oml_user <- "<%= user %>"
+        oml_pw <- "<%= password %>"
+
+        library('RPostgreSQL')
+        drv <- dbDriver("PostgreSQL")
+        con <- dbConnect(drv, host=oml_server, dbname=experiment_id, user=oml_user, password=oml_pw)
+
+        <%= validate_def %>
+        res <- validate(con)
+        dbDisconnect(con)
+        res
+      R
     end
   end
 end

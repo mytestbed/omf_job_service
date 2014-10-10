@@ -18,7 +18,7 @@ module OMF::JobService
 
     verify "Completed without errors " do
       @conn[:omf_ec_meta_data].where(key: "state", value: "finished").count > 0 &&
-        @conn[:omf_ec_log].where{ level > 1 }.count == 0
+        @conn[:omf_ec_log].where{ level > 2 }.count == 0
     end
 
     verify "Received messages" do

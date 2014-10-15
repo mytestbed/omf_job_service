@@ -50,6 +50,7 @@ module OMF::JobService::Resource
     oproperty :verifications, :verification, functional: false
     oproperty :r_scripts, Hash
     oproperty :slice_service, String
+    oproperty :irods_path, String
 
     def initialize(opts)
       super
@@ -99,6 +100,7 @@ module OMF::JobService::Resource
       h = super
       h[:status] = self.status
       h[:oml_db] = self.oml_db
+      h[:irods_path] = self.irods_path
       h[:username] = self.username
 
       if fn = log_file_name()

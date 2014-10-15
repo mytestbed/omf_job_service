@@ -48,14 +48,18 @@ module OMF::JobService
     end
 
     def eval_r_script(r_content)
-      @r_conn = Rserve::Connection.new
-      validate_def = Zlib::Inflate.inflate(Base64.decode64(r_content)).gsub(/\r/, '')
-      if @oml_db =~ /^postgres:\/\/(.*):(.*)@(.+):(.*)\/(.*)$/
-        user, password, host, port, db = $1, $2, $3, $4, $5
+      begin
+        @r_conn = Rserve::Connection.new
+        validate_def = Zlib::Inflate.inflate(Base64.decode64(r_content)).gsub(/\r/, '')
+        if @oml_db =~ /^postgres:\/\/(.*):(.*)@(.+):(.*)\/(.*)$/
+          user, password, host, port, db = $1, $2, $3, $4, $5
+        end
+        r = ERB.new(r_template).result(binding)
+        result = @r_conn.eval(r).as_string
+        @r_conn.close
+      rescue
+        resutl = 0
       end
-      r = ERB.new(r_template).result(binding)
-      result = @r_conn.eval(r).as_string
-      @r_conn.close
       result
     end
 
@@ -65,19 +69,19 @@ module OMF::JobService
 
     def r_template
       <<-R
-        experiment_id <- "<%= db %>"
-        oml_server <- "<%= host %>"
-        oml_user <- "<%= user %>"
-        oml_pw <- "<%= password %>"
+experiment_id <- "<%= db %>"
+oml_server <- "<%= host %>"
+oml_user <- "<%= user %>"
+oml_pw <- "<%= password %>"
 
-        library('RPostgreSQL')
-        drv <- dbDriver("PostgreSQL")
-        con <- dbConnect(drv, host=oml_server, dbname=experiment_id, user=oml_user, password=oml_pw)
+library('RPostgreSQL')
+drv <- dbDriver("PostgreSQL")
+con <- dbConnect(drv, host=oml_server, dbname=experiment_id, user=oml_user, password=oml_pw)
 
-        <%= validate_def %>
-        res <- validate(con)
-        dbDisconnect(con)
-        res
+<%= validate_def %>
+res <- validate(con)
+dbDisconnect(con)
+res
       R
     end
   end

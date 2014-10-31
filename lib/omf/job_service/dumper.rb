@@ -21,7 +21,7 @@ module OMF::JobService
 
       @@dump_folder = opts[:dump_folder] || "/tmp"
 
-      if opts[:db_server] =~ /^postgres:\/\/(.*):(.*)@(.+):(.*)$/
+      if opts[:db_server] =~ /^postgres:\/\/(.*):(.*)@(.+)$/
         user, password, host = $1, $2, $3
         host, port = *host.split(':')
         port ||= 5432

@@ -52,6 +52,8 @@ module OMF::JobService::Resource
     oproperty :slice_service, String
     oproperty :irods_path, String
 
+    oproperty :assertion, String
+
     def initialize(opts)
       super
       self.creation = Time.now
@@ -134,6 +136,13 @@ module OMF::JobService::Resource
       script_file.write(s)
       script_file.close
 
+      # Assertion
+      if self.assertion
+        assertion_file = Tempfile.new("ec_assertion_#{self.name}")
+        assertion_file.write(Base64.decode64(self.assertion))
+        assertion_file.close
+      end
+
       # Build experiment option line
       opts = self.ec_properties.map do |e|
         "--#{e.name} #{e.resource? ? e.resource_name : e.value}"
@@ -141,6 +150,7 @@ module OMF::JobService::Resource
       # Put together the command line and return
       cmd = "env -i #{EC_PATH}"
       cmd << " --slice-service #{self.slice_service}" if self.slice_service
+      cmd << " --assertion #{assertion_file.path}" if self.assertion
       cmd << " --experiment #{self.name} --oml_uri #{oml_server} --slice #{self.slice} --job-url #{self.href} #{script_file.path} -- #{opts.join(' ')}"
 
       debug "Executing '#{cmd}'"

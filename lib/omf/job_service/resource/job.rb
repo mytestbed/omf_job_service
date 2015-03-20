@@ -151,7 +151,9 @@ module OMF::JobService::Resource
       cmd = "env -i #{EC_PATH}"
       cmd << " --slice-service #{self.slice_service}" if self.slice_service
       cmd << " --assertion #{assertion_file.path}" if self.assertion
-      cmd << " --experiment #{self.name} --oml_uri #{oml_server} --slice #{self.slice} --job-url #{self.href} #{script_file.path} -- #{opts.join(' ')}"
+      cmd << " --experiment #{self.name} --oml_uri #{oml_server} "
+      cmd << " --slice #{self.slice}" if self.slice
+      cmd << " --job-url #{self.href} #{script_file.path} -- #{opts.join(' ')}"
 
       debug "Executing '#{cmd}'"
       log_file_name = log_file_name()

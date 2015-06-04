@@ -10,8 +10,8 @@ def override_with_local(opts)
 end
 
 gem 'rake'
-gem 'omf_common', override_with_local(path: '../../omf6/omf_common', version: "~> 6.1.4.pre")
-gem 'omf_ec', override_with_local(path: '../../omf6/omf_ec', version: "~> 6.1.4.pre")
+gem 'omf_common', override_with_local(path: '../../omf6/omf_common', version: "~> 6.2.0.pre")
+gem 'omf_ec', override_with_local(path: '../../omf6/omf_ec', version: "~> 6.2.0.pre")
 gem 'amqp'
 gem 'json-jwt'
 gem 'pg'

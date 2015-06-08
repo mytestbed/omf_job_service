@@ -10,7 +10,7 @@ module OMF::JobService
     class SimpleScheduler < OMF::Base::LObject
 
       POLL_PERIOD = 5 # period in second when the scheduler should wake up
-      SUPPORTED_RESOURCE_TYPES = [ :node ]
+      SUPPORTED_RESOURCE_TYPES = [ :node, :resource ]
 
 
       def initialize(opts)
@@ -98,7 +98,7 @@ module OMF::JobService
       def alloc_resource(descr)
         type = descr.resource_type
         unless supported_types?(type)
-          raise UnknownResourceException("requests a resource of type '#{type}' not supported by this scheduler")
+          error "requests a resource of type '#{type}' not supported by this scheduler"
         end
         res = @available_resources.delete_at(0)
       end

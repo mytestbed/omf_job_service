@@ -148,8 +148,7 @@ module OMF::JobService::Resource
         "--#{e.name} #{e.resource? ? e.resource_name : e.value}"
       end
       # Put together the command line and return
-      #cmd = "env -i #{EC_PATH}"
-      cmd = EC_PATH
+      cmd = "env -i #{EC_PATH}"
       cmd << " --slice-service #{self.slice_service}" if self.slice_service
       cmd << " --assertion #{assertion_file.path}" if self.assertion
       cmd << " --experiment #{self.name} --oml_uri #{oml_server} "

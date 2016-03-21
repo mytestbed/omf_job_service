@@ -9,7 +9,8 @@ def override_with_local(local_dir, opts = {})
 end
 
 gem 'omf_base', override_with_local('../omf_base')
-gem 'omf_sfa', "= 0.2.3"
+#gem 'omf_sfa', "= 0.2.3"
+gem 'omf_sfa', "~> 0.2.3"
 gem 'god'
 
 gem 'thin_async'

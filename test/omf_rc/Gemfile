@@ -12,7 +12,7 @@ end
 gem 'omf_common', override_with_local(path: '../../../omf6/omf_common', version: "~> 6.1.0")
 gem 'omf_rc', override_with_local(path: '../../../omf6/omf_rc', version: "~> 6.1.0")
 
-gem 'amqp'
+gem 'amqp', '= 1.5.3'
 gem 'json-jwt'
 gem 'oml4r'
 
